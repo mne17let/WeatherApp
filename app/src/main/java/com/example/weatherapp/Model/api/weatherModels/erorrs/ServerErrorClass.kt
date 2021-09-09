@@ -1,6 +1,6 @@
-package com.example.weatherapp.Model.api.currentWeather
+package com.example.weatherapp.Model.api.weatherModels
 
-import com.example.weatherapp.Model.api.currentWeather.erorrs.ServerErrorModel
+import com.example.weatherapp.Model.api.weatherModels.erorrs.ServerErrorModel
 import com.google.gson.annotations.SerializedName
 
 data class ServerErrorResponseModel(

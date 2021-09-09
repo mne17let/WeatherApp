@@ -5,102 +5,129 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="@color/drawer_header">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="4dp">
-
-        <ImageButton
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:background="@android:color/transparent"
-            android:src="@drawable/icon_hamburgermenu"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:tint="@color/drawer_header"
-            android:adjustViewBounds="true"
-
-            android:id="@+id/id_burger"/>
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:textSize="25sp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/id_burger"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:text="Город"
-            android:gravity="center"
-
-            android:id="@+id/id_textview_cityname"/>
-
-
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:layout_margin="4dp">
-
-        <ImageView
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            tools:src="@tools:sample/avatars"
-
-            android:id="@+id/id_imageview_weather_icon"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            tools:text="Температура"
-            android:layout_margin="10dp"
-            android:textSize="20sp"
-
-            android:id="@+id/id_textview_temperature"/>
+        app:cardCornerRadius="8dp"
+        android:layout_margin="2dp"
+        app:cardBackgroundColor="@color/black">
 
         <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <TextView
-                android:layout_width="wrap_content"
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                tools:text="Макс"
-                android:layout_margin="2dp"
-                android:textSize="15sp"
+                android:layout_margin="4dp">
 
-                android:id="@+id/id_textview_max_temperature_of_current_day"/>
+                <ImageButton
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:background="@android:color/transparent"
+                    android:src="@drawable/icon_hamburgermenu"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:tint="@color/drawer_header"
+                    android:adjustViewBounds="true"
+
+                    android:id="@+id/id_burger"/>
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:textSize="25sp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/id_burger"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:text="Город"
+                    android:gravity="center"
+                    android:textColor="@color/white"
+
+                    android:id="@+id/id_textview_cityname"/>
+
+
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:layout_margin="4dp">
+
+                <ImageView
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    tools:src="@tools:sample/avatars"
+                    android:adjustViewBounds="true"
+
+                    android:id="@+id/id_imageview_weather_icon"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    tools:text="+30"
+                    android:layout_margin="5dp"
+                    android:textSize="40sp"
+                    android:textColor="@color/white"
+
+                    android:id="@+id/id_textview_temperature"/>
+
+            </LinearLayout>
 
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                tools:text="Мин"
-                android:layout_margin="2dp"
-                android:textSize="15sp"
+                tools:text="Описание погоды"
+                android:layout_margin="4dp"
+                android:textSize="20sp"
+                android:gravity="center"
+                android:textColor="@color/white"
 
-                android:id="@+id/id_textview_min_temperature_of_current_day"/>
+                android:id="@+id/id_textview_current_weather_description"/>
 
         </LinearLayout>
 
-    </LinearLayout>
+    </androidx.cardview.widget.CardView>
 
-    <TextView
-        android:layout_width="match_parent"
+    <!--<LinearLayout
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        tools:text="Широта"
-        android:layout_margin="4dp"
-        android:textSize="20sp"
-        android:gravity="center"
+        android:orientation="vertical">
 
-        android:id="@+id/id_textview_current_weather_description"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="Макс"
+            android:layout_margin="2dp"
+            android:textSize="15sp"
+
+            android:id="@+id/id_textview_max_temperature_of_current_day"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="Мин"
+            android:layout_margin="2dp"
+            android:textSize="15sp"
+
+            android:id="@+id/id_textview_min_temperature_of_current_day"/>
+
+    </LinearLayout>-->
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="4dp"
+
+        android:id="@+id/id_recyclerview_forecast"/>
 
 
 </LinearLayout>

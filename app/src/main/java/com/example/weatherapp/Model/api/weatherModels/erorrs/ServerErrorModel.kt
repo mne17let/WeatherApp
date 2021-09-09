@@ -1,4 +1,4 @@
-package com.example.weatherapp.Model.api.currentWeather.erorrs
+package com.example.weatherapp.Model.api.weatherModels.erorrs
 
 import com.google.gson.annotations.SerializedName
 

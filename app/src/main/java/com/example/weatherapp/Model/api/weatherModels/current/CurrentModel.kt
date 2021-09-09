@@ -1,6 +1,6 @@
-package com.example.weatherapp.Model.api.currentWeather.current
+package com.example.weatherapp.Model.api.weatherModels.current
 
-import com.example.weatherapp.Model.api.currentWeather.ConditionModel
+import com.example.weatherapp.Model.api.weatherModels.ConditionModel
 import com.google.gson.annotations.SerializedName
 
 data class CurrentModel(

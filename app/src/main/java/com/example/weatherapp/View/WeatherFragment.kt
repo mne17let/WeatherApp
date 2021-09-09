@@ -5,6 +5,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.view.MotionEvent
 import android.view.View
 import android.widget.*
 import androidx.activity.result.ActivityResultLauncher
@@ -12,10 +13,13 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.weatherapp.MainActivity
 import com.example.weatherapp.R
 import com.example.weatherapp.ViewModel.WeatherViewModel
+import kotlinx.coroutines.flow.flowViaChannel
 import kotlin.math.max
 import kotlin.math.min
 
@@ -38,8 +42,10 @@ class WeatherFragment: Fragment(R.layout.fragment_weather) {
     private lateinit var textViewCityName: TextView
     private lateinit var textViewCurrentTemperature: TextView
     private lateinit var imageViewWeatherIcon: ImageView
-    private lateinit var maxTempTextView: TextView
-    private lateinit var minTempTextView: TextView
+    //private lateinit var maxTempTextView: TextView
+    //private lateinit var minTempTextView: TextView
+    private lateinit var currentDescriptionTextView: TextView
+    private lateinit var recyclerViewForecast: RecyclerView
 
     private lateinit var viewModel: WeatherViewModel
 
@@ -102,8 +108,10 @@ class WeatherFragment: Fragment(R.layout.fragment_weather) {
         textViewCityName = view.findViewById(R.id.id_textview_cityname)
         textViewCurrentTemperature = view.findViewById(R.id.id_textview_temperature)
         imageViewWeatherIcon = view.findViewById(R.id.id_imageview_weather_icon)
-        maxTempTextView = view.findViewById(R.id.id_textview_max_temperature_of_current_day)
-        minTempTextView = view.findViewById(R.id.id_textview_min_temperature_of_current_day)
+        //maxTempTextView = view.findViewById(R.id.id_textview_max_temperature_of_current_day)
+        //minTempTextView = view.findViewById(R.id.id_textview_min_temperature_of_current_day)
+        currentDescriptionTextView = view.findViewById(R.id.id_textview_current_weather_description)
+        recyclerViewForecast = view.findViewById(R.id.id_recyclerview_forecast)
 
         init()
         setLiveData()
@@ -113,6 +121,7 @@ class WeatherFragment: Fragment(R.layout.fragment_weather) {
     fun init(){
         viewModel = ViewModelProvider(requireActivity()).get(WeatherViewModel::class.java)
 
+        setRecyclerViewForecast()
         setBurger()
     }
 
@@ -120,6 +129,11 @@ class WeatherFragment: Fragment(R.layout.fragment_weather) {
         burger.setOnClickListener {
             (activity as MainActivity).showDrawer()
         }
+    }
+
+    fun setRecyclerViewForecast(){
+        val layoutManager = LinearLayoutManager(requireContext())
+        recyclerViewForecast.layoutManager = layoutManager
     }
 
     fun setLiveData(){
@@ -130,6 +144,7 @@ class WeatherFragment: Fragment(R.layout.fragment_weather) {
                 is WeatherViewModel.LiveDataState.Weather -> {
                     textViewCityName.text = it.currentWeather.location.name
                     textViewCurrentTemperature.text = it.currentWeather.current.temp_c.toString()
+                    currentDescriptionTextView.text = it.currentWeather.current.condition.weather_text
 
                     val stringUrl = it.currentWeather.current.condition.icon_url.toString()
                     val url = "https:$stringUrl"

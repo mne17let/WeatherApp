@@ -2,8 +2,8 @@ package com.example.weatherapp.Model.cloud
 
 import android.util.Log
 import com.example.weatherapp.Model.api.WeatherApi
-import com.example.weatherapp.Model.api.currentWeather.ResponseForecast
-import com.example.weatherapp.Model.api.currentWeather.ServerErrorResponseModel
+import com.example.weatherapp.Model.api.weatherModels.ResponseForecast
+import com.example.weatherapp.Model.api.weatherModels.ServerErrorResponseModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.ResponseBody
@@ -30,6 +30,7 @@ class Cloud {
         var cloudAnswer: CloudAnswer
 
         withContext(Dispatchers.IO) {
+            try {
                 val result: Response<ResponseForecast>
                 @Suppress("BlockingMethodInNonBlockingContext")
                 result = weatherApi.getForecast(searchString)
@@ -59,10 +60,12 @@ class Cloud {
                 Log.d(TAG_CLOUD, "Получен ответ: ${result}")
                 Log.d(TAG_CLOUD, "Получен ответ: ${result.body()?.forecast}")
                 Log.d(TAG_CLOUD, "Размер массива: ${result.body()?.forecast?.forecastday?.size}")
-            /*catch (e: Exception){
+            }
+
+            catch (e: Exception){
                 cloudAnswer = CloudAnswer.Error(CloudError.NO_TYPE_ERROR,
                     "Неизвестная ошибка. Не удалось выполнить запрос")
-            }*/
+            }
 
         }
 
