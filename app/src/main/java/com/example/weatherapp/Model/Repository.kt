@@ -14,6 +14,7 @@ class Repository(private val weatherApi: WeatherApi) {
         val newList: MutableList<String> = mutableListOf()
 
         withContext(Dispatchers.IO){
+            @Suppress("BlockingMethodInNonBlockingContext")
             val result = weatherApi.getCurrentWeather(cityName).execute()
 
             val code = result.code()

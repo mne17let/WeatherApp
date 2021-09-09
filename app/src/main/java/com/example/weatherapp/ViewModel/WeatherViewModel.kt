@@ -8,7 +8,7 @@ import com.example.weatherapp.Model.Repository
 import com.example.weatherapp.Model.api.WeatherApi
 import kotlinx.coroutines.launch
 
-class SearchViewModel(private val repository: Repository): ViewModel() {
+class WeatherViewModel(private val repository: Repository): ViewModel() {
 
     private val TAG_VIEWMODEL = "MyViewModel"
 
