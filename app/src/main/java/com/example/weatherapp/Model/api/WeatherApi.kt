@@ -8,8 +8,8 @@ import retrofit2.http.Query
 
 interface WeatherApi {
     @GET("https://api.weatherapi.com/v1/current.json?key=239195032ccc4c2ba7b155431210509")
-    fun getCurrentWeather(@Query("q") cityNameOrLongLat: String): Response<ResponseForecast>
+    suspend fun getCurrentWeather(@Query("q") cityNameOrLongLat: String): Response<ResponseForecast>
 
     @GET("https://api.weatherapi.com/v1/forecast.json?key=239195032ccc4c2ba7b155431210509&days=7")
-    fun getForecast(@Query("q") cityNameOrLongLat: String): Response<ResponseForecast>
+    suspend fun getForecast(@Query("q") cityNameOrLongLat: String): Response<ResponseForecast>
 }
