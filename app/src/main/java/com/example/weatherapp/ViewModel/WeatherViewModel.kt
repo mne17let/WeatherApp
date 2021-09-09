@@ -8,20 +8,32 @@ import com.example.weatherapp.Model.Repository
 import com.example.weatherapp.Model.api.WeatherApi
 import kotlinx.coroutines.launch
 
-class WeatherViewModel(private val repository: Repository): ViewModel() {
+class WeatherViewModel(): ViewModel() {
 
     private val TAG_VIEWMODEL = "MyViewModel"
 
-    val mutableLiveData = MutableLiveData<List<Any>>()
+    private var repository: Repository = Repository()
 
-    fun search(cityName: String){
+    val mutableLiveData = MutableLiveData<LiveDataState>()
+
+    fun search(text: String){
         viewModelScope.launch {
-            val result = repository.getCurrentWeatherFromRepository(cityName)
+            val result: Repository.RepositoryResult = repository.getWeatherFromRepository(text)
 
             Log.d(TAG_VIEWMODEL, "Во вьюмодель получены данные: $result")
 
-            mutableLiveData.value = result
+            when(result){
+                is Repository.RepositoryResult.SuccessRepositoryResult ->
+                    mutableLiveData.value = LiveDataState.Weather(result)
+                is Repository.RepositoryResult.ErrorRepositoryResult ->
+                    mutableLiveData.value = LiveDataState.Error(result)
+            }
         }
+    }
+
+    sealed class LiveDataState{
+        data class Weather(val currentWeather: Repository.RepositoryResult.SuccessRepositoryResult): LiveDataState()
+        data class Error(val error: Repository.RepositoryResult.ErrorRepositoryResult): LiveDataState()
     }
 
 }

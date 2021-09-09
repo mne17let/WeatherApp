@@ -1,40 +1,43 @@
 package com.example.weatherapp.Model
 
-import android.util.Log
-import com.example.weatherapp.Model.api.WeatherApi
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import com.example.weatherapp.Model.api.currentWeather.ResponseForecast
+import com.example.weatherapp.Model.api.currentWeather.current.CurrentModel
+import com.example.weatherapp.Model.api.currentWeather.forecast.DaysForecastModel
+import com.example.weatherapp.Model.api.currentWeather.location.LocationModel
+import com.example.weatherapp.Model.cloud.Cloud
 
-class Repository(private val weatherApi: WeatherApi) {
+class Repository() {
+    private val cloud = Cloud()
 
     private val TAG_REPOSITORY = "MyRepository"
 
-    suspend fun getCurrentWeatherFromRepository(cityName: String): MutableList<String>{
+    suspend fun getWeatherFromRepository(searchText: String): RepositoryResult{
+        val searchResult = cloud.getWeather(searchText)
+        when(searchResult){
+            is Cloud.CloudAnswer.Error ->
+                return RepositoryResult.ErrorRepositoryResult(searchResult.message, searchResult.errorType)
+            is Cloud.CloudAnswer.Success ->{
+                val current = searchResult.data.current
+                val location = searchResult.data.location
+                val forecast = searchResult.data.forecast
 
-        val newList: MutableList<String> = mutableListOf()
 
-        withContext(Dispatchers.IO){
-            @Suppress("BlockingMethodInNonBlockingContext")
-            val result = weatherApi.getCurrentWeather(cityName).execute()
-
-            val code = result.code()
-            val body = result.body()
-
-            if (body != null){
-                val newCityName = body.location.name
-                val newTemperature = body.current.temp_c
-                val newIconUrl = body.current.condition.icon_url
-
-                newList.add(newCityName)
-                newList.add(newTemperature.toString())
-                newList.add(newIconUrl)
+                return  RepositoryResult.SuccessRepositoryResult(location, current, forecast)
             }
-
-            Log.d(TAG_REPOSITORY, "Код ответа: ${code}")
-            Log.d(TAG_REPOSITORY, "Получен ответ: ${result}")
         }
+    }
 
-        return newList
+    sealed class RepositoryResult{
+        data class SuccessRepositoryResult(
+            val location: LocationModel,
+            val current: CurrentModel,
+            val forecast: List<DaysForecastModel>
+            ): RepositoryResult()
+
+        data class ErrorRepositoryResult(
+            val message: String,
+            val type: Cloud.CloudError
+        ): RepositoryResult()
     }
 
 }
