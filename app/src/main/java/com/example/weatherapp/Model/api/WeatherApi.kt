@@ -10,6 +10,6 @@ interface WeatherApi {
     @GET("https://api.weatherapi.com/v1/current.json?key=239195032ccc4c2ba7b155431210509")
     suspend fun getCurrentWeather(@Query("q") cityNameOrLongLat: String): Response<ResponseForecast>
 
-    @GET("https://api.weatherapi.com/v1/forecast.json?key=239195032ccc4c2ba7b155431210509&days=7")
+    @GET("https://api.weatherapi.com/v1/forecast.json?key=239195032ccc4c2ba7b155431210509&days=3")
     suspend fun getForecast(@Query("q") cityNameOrLongLat: String): Response<ResponseForecast>
 }
