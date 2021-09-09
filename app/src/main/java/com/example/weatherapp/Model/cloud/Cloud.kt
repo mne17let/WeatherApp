@@ -8,6 +8,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.ResponseBody
 import retrofit2.Converter
+import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.lang.Exception
@@ -28,41 +29,38 @@ class Cloud {
 
         val cloudAnswer: CloudAnswer
 
+        val result: Response<ResponseForecast>
+
         withContext(Dispatchers.IO) {
-            try {
-                @Suppress("BlockingMethodInNonBlockingContext")
-                val result = weatherApi.getForecast(searchString).execute()
+            @Suppress("BlockingMethodInNonBlockingContext")
+                result = weatherApi.getForecast(searchString).execute()
+        }
 
-                if (!result.isSuccessful) {
-                    val errorBody = result.errorBody()
-                    if(errorBody != null){
-                        cloudAnswer = getResultErrorAnswer(errorBody)
-                    } else{
-                        cloudAnswer = CloudAnswer.Error(CloudError.NO_TYPE_ERROR,
-                            "Неизвестная ошибка. Тело ответа с ошибкой пустое")
-                    }
-                } else {
-                    val body = result.body()
-                    if(body != null){
-                        cloudAnswer = CloudAnswer.Success(body)
-                    } else{
-                        cloudAnswer = CloudAnswer.Error(CloudError.NO_TYPE_ERROR,
-                            "Неизвестная ошибка. Запрос успешный, но тело ответа пустое")
-                    }
-
-                }
-
-                val code: Int = result.code()
-                val body: ResponseForecast? = result.body()
-
-                Log.d(TAG_CLOUD, "Код ответа: ${code}")
-                Log.d(TAG_CLOUD, "Получен ответ: ${result}")
-            } catch (e: Exception) {
-                e.printStackTrace()
+        if (!result.isSuccessful) {
+            val errorBody = result.errorBody()
+            if(errorBody != null){
+                cloudAnswer = getResultErrorAnswer(errorBody)
+            } else{
                 cloudAnswer = CloudAnswer.Error(CloudError.NO_TYPE_ERROR,
-                    "Неизвестная ошибка. Не удалось выполнить запрос")
+                    "Неизвестная ошибка. Тело ответа с ошибкой пустое")
+            }
+        } else {
+            val body = result.body()
+            if(body != null){
+                cloudAnswer = CloudAnswer.Success(body)
+            } else{
+                cloudAnswer = CloudAnswer.Error(CloudError.NO_TYPE_ERROR,
+                    "Неизвестная ошибка. Запрос успешный, но тело ответа пустое")
             }
         }
+
+        val code: Int = result.code()
+        val body: ResponseForecast? = result.body()
+
+        Log.d(TAG_CLOUD, "Код ответа: ${code}")
+        Log.d(TAG_CLOUD, "Получен ответ: ${result}")
+        Log.d(TAG_CLOUD, "Получен ответ: ${result.body()?.forecast}")
+        Log.d(TAG_CLOUD, "Размер массива: ${result.body()?.forecast?.forecastday?.size}")
 
         /*cloudAnswer = CloudAnswer.Error(CloudError.NO_TYPE_ERROR,
             "Неизвестная ошибка. Не удалось выполнить запрос")*/

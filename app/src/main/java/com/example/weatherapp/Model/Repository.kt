@@ -3,6 +3,7 @@ package com.example.weatherapp.Model
 import com.example.weatherapp.Model.api.currentWeather.ResponseForecast
 import com.example.weatherapp.Model.api.currentWeather.current.CurrentModel
 import com.example.weatherapp.Model.api.currentWeather.forecast.DaysForecastModel
+import com.example.weatherapp.Model.api.currentWeather.forecast.OneDayWeatherModel
 import com.example.weatherapp.Model.api.currentWeather.location.LocationModel
 import com.example.weatherapp.Model.cloud.Cloud
 
@@ -19,7 +20,7 @@ class Repository() {
             is Cloud.CloudAnswer.Success ->{
                 val current = searchResult.data.current
                 val location = searchResult.data.location
-                val forecast = searchResult.data.forecast
+                val forecast = searchResult.data.forecast.forecastday
 
 
                 return  RepositoryResult.SuccessRepositoryResult(location, current, forecast)
