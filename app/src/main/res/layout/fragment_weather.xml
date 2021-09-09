@@ -31,9 +31,10 @@
             android:textSize="25sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintStart_toEndOf="@id/id_burger"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="Город"
+            app:layout_constraintHorizontal_bias="0.4"
 
             android:id="@+id/id_textview_cityname"/>
 

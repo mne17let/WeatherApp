@@ -93,8 +93,6 @@ class WeatherFragment: Fragment(R.layout.fragment_weather) {
     override fun onProviderEnabled(provider: String) {
         Log.d(TAG_ACTIVITY, "on Provider Enabled")
     }
-
-
     */
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
