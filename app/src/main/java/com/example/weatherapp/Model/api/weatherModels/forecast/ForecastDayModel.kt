@@ -2,7 +2,7 @@ package com.example.weatherapp.Model.api.weatherModels.forecast
 
 import com.google.gson.annotations.SerializedName
 
-data class DaysForecastModel(
+data class ForecastDayModel(
     @SerializedName("date")
     val date: String,
     @SerializedName("day")

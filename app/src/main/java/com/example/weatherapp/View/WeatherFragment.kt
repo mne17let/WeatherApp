@@ -17,7 +17,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.weatherapp.MainActivity
+import com.example.weatherapp.Model.api.weatherModels.forecast.ForecastDayModel
 import com.example.weatherapp.R
+import com.example.weatherapp.View.forecast_recyclerview.ForecastAdapter
 import com.example.weatherapp.ViewModel.WeatherViewModel
 import kotlinx.coroutines.flow.flowViaChannel
 import kotlin.math.max
@@ -45,7 +47,10 @@ class WeatherFragment: Fragment(R.layout.fragment_weather) {
     //private lateinit var maxTempTextView: TextView
     //private lateinit var minTempTextView: TextView
     private lateinit var currentDescriptionTextView: TextView
+
+    // RecyclerView
     private lateinit var recyclerViewForecast: RecyclerView
+    private lateinit var adapter: ForecastAdapter
 
     private lateinit var viewModel: WeatherViewModel
 
@@ -133,7 +138,10 @@ class WeatherFragment: Fragment(R.layout.fragment_weather) {
 
     fun setRecyclerViewForecast(){
         val layoutManager = LinearLayoutManager(requireContext())
+        adapter = ForecastAdapter()
+
         recyclerViewForecast.layoutManager = layoutManager
+        recyclerViewForecast.adapter = adapter
     }
 
     fun setLiveData(){
@@ -150,6 +158,14 @@ class WeatherFragment: Fragment(R.layout.fragment_weather) {
                     val url = "https:$stringUrl"
                     Log.d(TAG_WEATHER_FRAGMENT, "url = $url")
                     Glide.with(imageViewWeatherIcon).load(url).into(imageViewWeatherIcon)
+
+                    val newListForAdapter = mutableListOf<ForecastDayModel>()
+
+                    for(i in it.currentWeather.forecast){
+                        newListForAdapter.add(i)
+                    }
+
+                    setNewListForForecastAdapter(newListForAdapter)
                 }
 
                 is WeatherViewModel.LiveDataState.Error ->{
@@ -157,6 +173,10 @@ class WeatherFragment: Fragment(R.layout.fragment_weather) {
                 }
             }
         })
+    }
+
+    fun setNewListForForecastAdapter(forecastList: List<ForecastDayModel>){
+        adapter.setList(forecastList)
     }
 
     fun workWithPermission(){

@@ -3,14 +3,16 @@ package com.example.weatherapp.View.forecast_recyclerview
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.example.weatherapp.Model.api.weatherModels.forecast.ForecastDayModel
 import com.example.weatherapp.R
 
 class ForecastAdapter: RecyclerView.Adapter<ForecastViewHolder>() {
 
-    private var itemsList = emptyList<Any>()
+    private var itemsList = emptyList<ForecastDayModel>()
 
-    fun setList(list: List<Any>){
+    fun setList(list: List<ForecastDayModel>){
         itemsList = list
+        notifyDataSetChanged()
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ForecastViewHolder {
@@ -20,7 +22,7 @@ class ForecastAdapter: RecyclerView.Adapter<ForecastViewHolder>() {
     }
 
     override fun onBindViewHolder(holder: ForecastViewHolder, position: Int) {
-        holder.bind()
+        holder.bind(itemsList[position])
     }
 
     override fun getItemCount(): Int {

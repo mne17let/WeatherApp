@@ -1,7 +1,7 @@
 package com.example.weatherapp.Model
 
 import com.example.weatherapp.Model.api.weatherModels.current.CurrentModel
-import com.example.weatherapp.Model.api.weatherModels.forecast.DaysForecastModel
+import com.example.weatherapp.Model.api.weatherModels.forecast.ForecastDayModel
 import com.example.weatherapp.Model.api.weatherModels.location.LocationModel
 import com.example.weatherapp.Model.cloud.Cloud
 
@@ -30,7 +30,7 @@ class Repository() {
         data class SuccessRepositoryResult(
             val location: LocationModel,
             val current: CurrentModel,
-            val forecast: List<DaysForecastModel>
+            val forecast: List<ForecastDayModel>
             ): RepositoryResult()
 
         data class ErrorRepositoryResult(
