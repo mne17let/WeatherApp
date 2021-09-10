@@ -1,42 +1,91 @@
 package com.example.weatherapp.Model
 
-import com.example.weatherapp.Model.api.weatherModels.current.CurrentModel
-import com.example.weatherapp.Model.api.weatherModels.forecast.ForecastDayModel
-import com.example.weatherapp.Model.api.weatherModels.location.LocationModel
+import com.example.weatherapp.Model.api.weatherModels.ResponseForecast
+import com.example.weatherapp.Model.cache.CacheAnswer
+import com.example.weatherapp.Model.cache.CacheDataSource
+import com.example.weatherapp.Model.cache.DataBaseAnswer
+import com.example.weatherapp.Model.cache.RealmLocationModel
 import com.example.weatherapp.Model.cloud.Cloud
+import com.example.weatherapp.Model.cloud.CloudAnswer
 
-class Repository() {
-    private val cloud = Cloud()
+class Repository(private val cloud: Cloud, private val cache: CacheDataSource) {
+    //private val cloud = Cloud()
 
     private val TAG_REPOSITORY = "MyRepository"
+
+    private var cachedCityWeather: ResponseForecast? = null
 
     suspend fun getWeatherFromRepository(searchText: String): RepositoryResult{
         val searchResult = cloud.getWeather(searchText)
         when(searchResult){
-            is Cloud.CloudAnswer.Error ->
-                return RepositoryResult.ErrorRepositoryResult(searchResult.message, searchResult.errorType)
-            is Cloud.CloudAnswer.Success ->{
+            is CloudAnswer.Error ->{
+                cachedCityWeather = null
+                return RepositoryResult.CloudErrorRepositoryResult(searchResult.message, searchResult.errorType)
+            }
+            is CloudAnswer.Success ->{
+                cachedCityWeather = searchResult.data
                 val current = searchResult.data.current
                 val location = searchResult.data.location
                 val forecast = searchResult.data.forecast.forecastday
+                val isSaved = cache.checkSave(getLocationId())
 
-
-                return  RepositoryResult.SuccessRepositoryResult(location, current, forecast)
+                return  RepositoryResult.CloudSuccessRepositoryResult(location, current, forecast, isSaved)
             }
         }
     }
 
-    sealed class RepositoryResult{
-        data class SuccessRepositoryResult(
-            val location: LocationModel,
-            val current: CurrentModel,
-            val forecast: List<ForecastDayModel>
-            ): RepositoryResult()
+    suspend fun addOrRemoveLocation(): RepositoryResult {
+        val realmObject = RealmLocationModel()
+        val cityName = cachedCityWeather?.location?.name.toString()
 
-        data class ErrorRepositoryResult(
-            val message: String,
-            val type: Cloud.CloudError
-        ): RepositoryResult()
+        realmObject.cityName = cityName
+        realmObject.idCityRegionCountry = getLocationId()
+
+        val cacheAnswer = cache.addOrRemoveObject(realmObject)
+
+        val repositoryResult: RepositoryResult
+
+        when(cacheAnswer){
+            is CacheAnswer.SaveOrDeleteSuccess -> {
+                repositoryResult =
+                    RepositoryResult.CacheRepositoryResult(cacheAnswer.message, false, cacheAnswer.list)
+            }
+            is CacheAnswer.SaveOrDeleteError -> {
+                repositoryResult = RepositoryResult.CacheRepositoryResult(cacheAnswer.message, true, cacheAnswer.list)
+            }
+        }
+
+        return repositoryResult
     }
+
+    suspend fun getLocationsList(): RepositoryResult.GetCacheListRepositoryAnswer{
+        val answer = cache.getDataBaseData()
+
+        val repositoryAnswer: RepositoryResult.GetCacheListRepositoryAnswer
+
+        when(answer){
+            is DataBaseAnswer.EmptyData ->{
+                repositoryAnswer = RepositoryResult.GetCacheListRepositoryAnswer(answer.message, emptyList())
+            }
+
+            is DataBaseAnswer.SuccessGetData ->{
+                val cacheList = answer.list
+
+                repositoryAnswer = RepositoryResult.GetCacheListRepositoryAnswer(answer.message, cacheList)
+            }
+        }
+        return repositoryAnswer
+    }
+
+    private fun getLocationId(): String{
+        val cityName = cachedCityWeather?.location?.name.toString()
+        val region = cachedCityWeather?.location?.region.toString().lowercase()
+        val country = cachedCityWeather?.location?.country.toString().lowercase()
+
+
+        return "${cityName.lowercase()}$region$country"
+    }
+
+
 
 }

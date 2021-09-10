@@ -5,14 +5,12 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import android.view.MotionEvent
 import android.view.View
 import android.widget.*
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -20,21 +18,20 @@ import com.example.weatherapp.MainActivity
 import com.example.weatherapp.Model.api.weatherModels.forecast.ForecastDayModel
 import com.example.weatherapp.R
 import com.example.weatherapp.View.forecast_recyclerview.ForecastAdapter
+import com.example.weatherapp.View.savelist_recyclerview.MyInterfaceForListAdapter
+import com.example.weatherapp.View.savelist_recyclerview.SaveListAdapter
 import com.example.weatherapp.ViewModel.WeatherViewModel
-import kotlinx.coroutines.flow.flowViaChannel
-import kotlin.math.max
-import kotlin.math.min
+import kotlin.math.hypot
 
-class WeatherFragment: Fragment(R.layout.fragment_weather) {
+class WeatherFragment : Fragment(R.layout.fragment_weather) {
 
     private val TAG_WEATHER_FRAGMENT = "MyWeatherFragment"
 
     private val requestPermissionLauncher: ActivityResultLauncher<Array<String>> =
-        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()){
-                isGrantedMap ->
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { isGrantedMap ->
 
-            for (key in isGrantedMap.keys){
-                if(isGrantedMap[key] == false){
+            for (key in isGrantedMap.keys) {
+                if (isGrantedMap[key] == false) {
 
                 }
             }
@@ -44,9 +41,14 @@ class WeatherFragment: Fragment(R.layout.fragment_weather) {
     private lateinit var textViewCityName: TextView
     private lateinit var textViewCurrentTemperature: TextView
     private lateinit var imageViewWeatherIcon: ImageView
+
     //private lateinit var maxTempTextView: TextView
     //private lateinit var minTempTextView: TextView
     private lateinit var currentDescriptionTextView: TextView
+    private lateinit var saveDeleteButton: ImageButton
+    private lateinit var textViewSaveOrDelete: TextView
+
+
 
     // RecyclerView
     private lateinit var recyclerViewForecast: RecyclerView
@@ -116,27 +118,44 @@ class WeatherFragment: Fragment(R.layout.fragment_weather) {
         //maxTempTextView = view.findViewById(R.id.id_textview_max_temperature_of_current_day)
         //minTempTextView = view.findViewById(R.id.id_textview_min_temperature_of_current_day)
         currentDescriptionTextView = view.findViewById(R.id.id_textview_current_weather_description)
+        saveDeleteButton = view.findViewById(R.id.id_save_delete_button)
+        textViewSaveOrDelete = view.findViewById(R.id.id_textview_save_or_delete)
+
+
         recyclerViewForecast = view.findViewById(R.id.id_recyclerview_forecast)
 
+
         init()
-        setLiveData()
+        setCloudLiveData()
+        setCacheLiveData()
         viewModel.search("Москва")
     }
 
-    fun init(){
-        viewModel = ViewModelProvider(requireActivity()).get(WeatherViewModel::class.java)
+    private fun init() {
+        viewModel = (activity as MainActivity).activityViewModel
 
         setRecyclerViewForecast()
         setBurger()
+        setSaveButton()
     }
 
-    fun setBurger(){
+    private fun setBurger() {
         burger.setOnClickListener {
             (activity as MainActivity).showDrawer()
         }
     }
 
-    fun setRecyclerViewForecast(){
+    private fun setSaveButton() {
+        saveDeleteButton.setOnClickListener {
+            viewModel.saveOrDeleteCurrentLocation()
+        }
+
+        textViewSaveOrDelete.setOnClickListener {
+            viewModel.saveOrDeleteCurrentLocation()
+        }
+    }
+
+    private fun setRecyclerViewForecast() {
         val layoutManager = LinearLayoutManager(requireContext())
         adapter = ForecastAdapter()
 
@@ -144,61 +163,112 @@ class WeatherFragment: Fragment(R.layout.fragment_weather) {
         recyclerViewForecast.adapter = adapter
     }
 
-    fun setLiveData(){
-        viewModel.mutableLiveData.observe(viewLifecycleOwner, {
+    private fun setCloudLiveData() {
+        viewModel.cloudLiveData.observe(viewLifecycleOwner, {
             Log.d(TAG_WEATHER_FRAGMENT, "Во фрагменте получен ответ: $it")
 
-            when(it){
+            when (it) {
                 is WeatherViewModel.LiveDataState.Weather -> {
                     textViewCityName.text = it.currentWeather.location.name
                     textViewCurrentTemperature.text = it.currentWeather.current.temp_c.toString()
-                    currentDescriptionTextView.text = it.currentWeather.current.condition.weather_text
+                    currentDescriptionTextView.text =
+                        it.currentWeather.current.condition.weather_text
 
                     val stringUrl = it.currentWeather.current.condition.icon_url.toString()
                     val url = "https:$stringUrl"
                     Log.d(TAG_WEATHER_FRAGMENT, "url = $url")
                     Glide.with(imageViewWeatherIcon).load(url).into(imageViewWeatherIcon)
 
+                    if (it.currentWeather.isSaved) {
+                        saveDeleteButton.setImageResource(R.drawable.ic_delete)
+                        textViewSaveOrDelete.text = getString(R.string.delete)
+                        Toast.makeText(
+                            requireContext(),
+                            "Местоположение сохранено",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+
                     val newListForAdapter = mutableListOf<ForecastDayModel>()
 
-                    for(i in it.currentWeather.forecast){
+                    for (i in it.currentWeather.forecast) {
                         newListForAdapter.add(i)
                     }
 
                     setNewListForForecastAdapter(newListForAdapter)
                 }
 
-                is WeatherViewModel.LiveDataState.Error ->{
-                    textViewCityName.text = it.error.message
+                is WeatherViewModel.LiveDataState.Error -> {
+                    textViewCityName.text = it.cloudError.message
                 }
             }
         })
     }
 
-    fun setNewListForForecastAdapter(forecastList: List<ForecastDayModel>){
+    private fun setCacheLiveData() {
+        viewModel.cacheLiveData.observe(viewLifecycleOwner) {
+
+            if (it.isError) {
+                Toast.makeText(requireContext(), it.message, Toast.LENGTH_SHORT).show()
+            } else {
+                when (it.message) {
+                    "Местоположение сохранено" -> {
+                        saveDeleteButton.setImageResource(R.drawable.ic_delete)
+                        textViewSaveOrDelete.text = getString(R.string.delete)
+                        Toast.makeText(requireContext(), it.message, Toast.LENGTH_SHORT).show()
+                    }
+                    "Местоположение удалено" -> {
+                        saveDeleteButton.setImageResource(R.drawable.ic_save)
+                        textViewSaveOrDelete.text = getString(R.string.save)
+                        Toast.makeText(requireContext(), it.message, Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        }
+    }
+
+    private fun setNewListForForecastAdapter(forecastList: List<ForecastDayModel>) {
         adapter.setList(forecastList)
     }
 
-    fun workWithPermission(){
-        if(ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
+    private fun workWithPermission() {
+        if (ContextCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION
+            )
             == PackageManager.PERMISSION_GRANTED &&
-            ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION)
-            == PackageManager.PERMISSION_GRANTED){
+            ContextCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            )
+            == PackageManager.PERMISSION_GRANTED
+        ) {
 
             Toast.makeText(requireContext(), "Даны разрешения", Toast.LENGTH_SHORT).show()
-        } else if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
-            if(shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_COARSE_LOCATION)
-                || shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_COARSE_LOCATION)){
-                Toast.makeText(requireContext(), "Для этого действия необходимы разрешения", Toast.LENGTH_SHORT).show()
-            } else{
-                requestPermissionLauncher.launch(arrayOf(
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.ACCESS_COARSE_LOCATION))
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_COARSE_LOCATION)
+                || shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_COARSE_LOCATION)
+            ) {
+                Toast.makeText(
+                    requireContext(),
+                    "Для этого действия необходимы разрешения",
+                    Toast.LENGTH_SHORT
+                ).show()
+            } else {
+                requestPermissionLauncher.launch(
+                    arrayOf(
+                        Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.ACCESS_COARSE_LOCATION
+                    )
+                )
             }
-        } else{
-            requestPermissionLauncher.launch(arrayOf(
-                Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.ACCESS_COARSE_LOCATION))
+        } else {
+            requestPermissionLauncher.launch(
+                arrayOf(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                )
+            )
         }
 
     }
