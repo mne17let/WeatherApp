@@ -2,6 +2,7 @@ package com.example.weatherapp.Model.cloud
 
 import android.util.Log
 import com.example.weatherapp.Model.api.WeatherApi
+import com.example.weatherapp.Model.api.searchModels.NewLocation
 import com.example.weatherapp.Model.api.weatherModels.ResponseForecast
 import com.example.weatherapp.Model.api.weatherModels.ServerErrorResponseModel
 import kotlinx.coroutines.Dispatchers
@@ -123,5 +124,44 @@ class Cloud(private val weatherApi: WeatherApi, private val retrofit: Retrofit) 
         return finalError
     }
 
+
+    suspend fun searchOnApi(text: String): MutableList<NewLocation>{
+
+        val cloudAnswer: MutableList<NewLocation> = mutableListOf()
+
+        withContext(Dispatchers.IO){
+            try {
+                val result = weatherApi.search(text)
+
+                Log.d(TAG_CLOUD, "В Cloud получен результат: $result")
+                Log.d(TAG_CLOUD, "Тело ответа: ${result.body()}")
+
+                if(result.isSuccessful){
+                    val body = result.body()
+
+                    if(body != null){
+                        if(body.isNotEmpty()){
+                            for(i in body){
+                                cloudAnswer.add(i)
+                                Log.d(TAG_CLOUD, "Добавлен: $i")
+                            }
+                        }else{
+                            Log.d(TAG_CLOUD, "Ответ пустой: ${body}")
+                        }
+                    } else{
+                        Log.d(TAG_CLOUD, "Body - null: $body")
+                    }
+
+                }else{
+                    Log.d(TAG_CLOUD, "Запрос не isSuccessful")
+                }
+            } catch (e: Exception){
+                Log.d(TAG_CLOUD, "Выполнен блок catch")
+                Log.d(TAG_CLOUD, "$e")
+            }
+        }
+
+        return cloudAnswer
+    }
 
 }

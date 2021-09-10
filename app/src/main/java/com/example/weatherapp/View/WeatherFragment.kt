@@ -18,10 +18,7 @@ import com.example.weatherapp.MainActivity
 import com.example.weatherapp.Model.api.weatherModels.forecast.ForecastDayModel
 import com.example.weatherapp.R
 import com.example.weatherapp.View.forecast_recyclerview.ForecastAdapter
-import com.example.weatherapp.View.savelist_recyclerview.MyInterfaceForListAdapter
-import com.example.weatherapp.View.savelist_recyclerview.SaveListAdapter
 import com.example.weatherapp.ViewModel.WeatherViewModel
-import kotlin.math.hypot
 
 class WeatherFragment : Fragment(R.layout.fragment_weather) {
 
@@ -41,12 +38,13 @@ class WeatherFragment : Fragment(R.layout.fragment_weather) {
     private lateinit var textViewCityName: TextView
     private lateinit var textViewCurrentTemperature: TextView
     private lateinit var imageViewWeatherIcon: ImageView
-
-    //private lateinit var maxTempTextView: TextView
-    //private lateinit var minTempTextView: TextView
     private lateinit var currentDescriptionTextView: TextView
     private lateinit var saveDeleteButton: ImageButton
     private lateinit var textViewSaveOrDelete: TextView
+
+    private lateinit var fullLayout: LinearLayout
+    private lateinit var tryAgainButton: Button
+    private lateinit var progressBar: ProgressBar
 
 
 
@@ -115,11 +113,14 @@ class WeatherFragment : Fragment(R.layout.fragment_weather) {
         textViewCityName = view.findViewById(R.id.id_textview_cityname)
         textViewCurrentTemperature = view.findViewById(R.id.id_textview_temperature)
         imageViewWeatherIcon = view.findViewById(R.id.id_imageview_weather_icon)
-        //maxTempTextView = view.findViewById(R.id.id_textview_max_temperature_of_current_day)
-        //minTempTextView = view.findViewById(R.id.id_textview_min_temperature_of_current_day)
         currentDescriptionTextView = view.findViewById(R.id.id_textview_current_weather_description)
         saveDeleteButton = view.findViewById(R.id.id_save_delete_button)
         textViewSaveOrDelete = view.findViewById(R.id.id_textview_save_or_delete)
+
+        fullLayout = view.findViewById(R.id.id_full_frame_weather_fragment)
+        tryAgainButton = view.findViewById(R.id.id_button_try_again)
+        progressBar = view.findViewById(R.id.id_progress_bar)
+
 
 
         recyclerViewForecast = view.findViewById(R.id.id_recyclerview_forecast)
@@ -128,7 +129,14 @@ class WeatherFragment : Fragment(R.layout.fragment_weather) {
         init()
         setCloudLiveData()
         setCacheLiveData()
-        viewModel.search("Москва")
+        getCurrentWeather()
+
+    }
+
+    fun getCurrentWeather(){
+        viewModel.getWeather("Москва")
+        fullLayout.visibility = View.GONE
+        progressBar.visibility = View.VISIBLE
     }
 
     private fun init() {
@@ -188,6 +196,9 @@ class WeatherFragment : Fragment(R.layout.fragment_weather) {
                             Toast.LENGTH_SHORT
                         ).show()
                     }
+
+                    fullLayout.visibility = View.VISIBLE
+                    progressBar.visibility = View.GONE
 
                     val newListForAdapter = mutableListOf<ForecastDayModel>()
 

@@ -8,10 +8,9 @@ import com.example.weatherapp.R
 
 class SaveLocationHolder(newView: View): RecyclerView.ViewHolder(newView) {
 
-    private lateinit var textViewCityName: TextView
+    private val textViewCityName: TextView = itemView.findViewById(R.id.id_textview_item_save_location)
 
     fun bind(modelLocation: String){
-        textViewCityName = itemView.findViewById(R.id.id_textview_item_save_location)
         textViewCityName.text = modelLocation
     }
 }

@@ -17,8 +17,9 @@ class WeatherViewModel(private val repository: Repository): ViewModel() {
     val cloudLiveData = MutableLiveData<LiveDataState>()
     val cacheLiveData = MutableLiveData<CacheAnswer>()
     val savedListLiveData = MutableLiveData<List<String>>()
+    val searchLiveData = MutableLiveData<List<String>>()
 
-    fun search(text: String){
+    fun getWeather(text: String){
         viewModelScope.launch {
             val result: RepositoryResult = repository.getWeatherFromRepository(text)
 
@@ -52,6 +53,24 @@ class WeatherViewModel(private val repository: Repository): ViewModel() {
             val sorted = listFromRepository.sorted()
 
             savedListLiveData.value = sorted
+        }
+    }
+
+    fun searchLocations(text: String){
+        viewModelScope.launch {
+            val result = repository.repositorySearch(text)
+
+            val mutableList: MutableList<String> = mutableListOf()
+
+            Log.d(TAG_VIEWMODEL, "Во вьюмодели выполнен поиск с текстом: $text")
+            Log.d(TAG_VIEWMODEL, "Во вьюмодели получен результат: $result")
+
+            if(result.isNotEmpty()){
+                searchLiveData.value = result
+            } else{
+                searchLiveData.value = emptyList()
+            }
+
         }
     }
 

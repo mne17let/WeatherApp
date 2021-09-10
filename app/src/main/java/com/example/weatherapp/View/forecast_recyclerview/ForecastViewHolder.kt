@@ -12,21 +12,14 @@ import com.example.weatherapp.R
 
 class ForecastViewHolder(forecastView: View): RecyclerView.ViewHolder(forecastView) {
 
-    private lateinit var textViewDate: TextView
-    private lateinit var textViewMaxTemp: TextView
-    private lateinit var textViewMinTemp: TextView
-    private lateinit var textViewAvgTemp: TextView
-    private lateinit var textViewDescription: TextView
-    private lateinit var imageViewIcon: ImageView
+    private val textViewDate: TextView = itemView.findViewById(R.id.id_tv_rv_date)
+    private val textViewMaxTemp: TextView = itemView.findViewById(R.id.id_tv_max_temp)
+    private val textViewMinTemp: TextView = itemView.findViewById(R.id.id_tv_rv_min_temp)
+    private val textViewAvgTemp: TextView = itemView.findViewById(R.id.id_tv_rv_avg_temp)
+    private val textViewDescription: TextView = itemView.findViewById(R.id.id_tv_rv_description)
+    private val imageViewIcon: ImageView = itemView.findViewById(R.id.id_iv_rv_weather_icon)
 
     fun bind(data: ForecastDayModel){
-        textViewDate = itemView.findViewById(R.id.id_tv_rv_date)
-        textViewMaxTemp = itemView.findViewById(R.id.id_tv_max_temp)
-        textViewMinTemp = itemView.findViewById(R.id.id_tv_rv_min_temp)
-        textViewAvgTemp = itemView.findViewById(R.id.id_tv_rv_avg_temp)
-        textViewDescription = itemView.findViewById(R.id.id_tv_rv_description)
-        imageViewIcon = itemView.findViewById(R.id.id_iv_rv_weather_icon)
-
         setData(data)
     }
 

@@ -1,8 +1,18 @@
 <resources>
     <string name="app_name">WeatherApp</string>
 
-    <string name="drawer_header_text">Мои местоположения</string>
+    <string name="drawer_header_text">My locations</string>
 
-    <string name="delete">Удалить</string>
-    <string name="save">Сохранить</string>
+    <string name="delete">Delete location</string>
+    <string name="save">Save location</string>
+
+    <string name="search_hint">Input your location</string>
+
+    <string name="add_new_location">Add new location</string>
+
+    <string name="find_my_location">Find my location</string>
+
+    <string name="short_search_text">Too short request</string>
+
+    <string name="nothing_found">Nothing was found</string>
 </resources>

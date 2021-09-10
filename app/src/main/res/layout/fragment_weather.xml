@@ -6,142 +6,175 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/drawer_header">
+    android:background="@color/drawer_header"
+
+    >
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:visibility="gone"
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <ImageButton
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:background="@android:color/transparent"
-                android:src="@drawable/ic_menu"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:tint="@color/white"
-                android:adjustViewBounds="true"
-
-                android:id="@+id/id_burger"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toEndOf="@id/id_burger"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/id_save_delete_button"
-                android:text="@string/save"
-                android:textColor="@color/white"
-                app:layout_constraintHorizontal_bias="1"
-                android:textSize="20sp"
-
-                android:id="@+id/id_textview_save_or_delete" />
-
-            <ImageButton
-                android:layout_width="60dp"
-                android:layout_height="60dp"
-                android:background="@android:color/transparent"
-                android:src="@drawable/ic_save"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:tint="@color/white"
-                android:adjustViewBounds="true"
-                app:layout_constraintHorizontal_bias="1"
-
-                android:id="@+id/id_save_delete_button"/>
-
-
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="25sp"
-            tools:text="Город"
-            android:layout_gravity="center"
-            android:textColor="@color/white"
-
-            android:id="@+id/id_textview_cityname"/>
+        android:id="@+id/id_full_frame_weather_fragment">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            android:layout_margin="4dp">
+            android:orientation="vertical">
 
-            <ImageView
-                android:layout_width="60dp"
-                android:layout_height="60dp"
-                tools:src="@tools:sample/avatars"
-                android:adjustViewBounds="true"
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
 
-                android:id="@+id/id_imageview_weather_icon"/>
+                <ImageButton
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:background="@android:color/transparent"
+                    android:src="@drawable/ic_menu"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:tint="@color/white"
+                    android:adjustViewBounds="true"
+
+                    android:id="@+id/id_burger"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/id_burger"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/id_save_delete_button"
+                    android:text="@string/save"
+                    android:textColor="@color/white"
+                    app:layout_constraintHorizontal_bias="1"
+                    android:textSize="20sp"
+
+                    android:id="@+id/id_textview_save_or_delete" />
+
+                <ImageButton
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:background="@android:color/transparent"
+                    android:src="@drawable/ic_save"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:tint="@color/white"
+                    android:adjustViewBounds="true"
+                    app:layout_constraintHorizontal_bias="1"
+
+                    android:id="@+id/id_save_delete_button"/>
+
+
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                tools:text="+30"
-                android:layout_margin="5dp"
-                android:textSize="40sp"
+                android:textSize="25sp"
+                tools:text="Город"
+                android:layout_gravity="center"
                 android:textColor="@color/white"
 
-                android:id="@+id/id_textview_temperature"/>
+                android:id="@+id/id_textview_cityname"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:layout_margin="4dp">
+
+                <ImageView
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    tools:src="@tools:sample/avatars"
+                    android:adjustViewBounds="true"
+
+                    android:id="@+id/id_imageview_weather_icon"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    tools:text="+30"
+                    android:layout_margin="5dp"
+                    android:textSize="40sp"
+                    android:textColor="@color/white"
+
+                    android:id="@+id/id_textview_temperature"/>
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:text="Описание погоды"
+                android:layout_margin="4dp"
+                android:textSize="20sp"
+                android:gravity="center"
+                android:textColor="@color/white"
+
+                android:id="@+id/id_textview_current_weather_description"/>
 
         </LinearLayout>
 
-        <TextView
-            android:layout_width="match_parent"
+        <!--<LinearLayout
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            tools:text="Описание погоды"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="Макс"
+                android:layout_margin="2dp"
+                android:textSize="15sp"
+
+                android:id="@+id/id_textview_max_temperature_of_current_day"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="Мин"
+                android:layout_margin="2dp"
+                android:textSize="15sp"
+
+                android:id="@+id/id_textview_min_temperature_of_current_day"/>
+
+        </LinearLayout>-->
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:layout_margin="4dp"
-            android:textSize="20sp"
-            android:gravity="center"
-            android:textColor="@color/white"
 
-            android:id="@+id/id_textview_current_weather_description"/>
-
+            android:id="@+id/id_recyclerview_forecast"/>
     </LinearLayout>
 
-    <!--<LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            tools:text="Макс"
-            android:layout_margin="2dp"
-            android:textSize="15sp"
-
-            android:id="@+id/id_textview_max_temperature_of_current_day"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            tools:text="Мин"
-            android:layout_margin="2dp"
-            android:textSize="15sp"
-
-            android:id="@+id/id_textview_min_temperature_of_current_day"/>
-
-    </LinearLayout>-->
-
-    <androidx.recyclerview.widget.RecyclerView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_margin="4dp"
+        android:gravity="center"
+        android:orientation="vertical">
 
-        android:id="@+id/id_recyclerview_forecast"/>
+        <ProgressBar
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:indeterminateTint="@color/white"
+            android:indeterminate="true"
+            style="?android:attr/progressBarStyleHorizontal"
 
+            android:id="@+id/id_progress_bar"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:id="@+id/id_button_try_again"/>
+
+    </LinearLayout>
 
 </LinearLayout>

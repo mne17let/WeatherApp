@@ -8,19 +8,21 @@
     android:gravity="center"
     android:orientation="vertical"
     tools:context=".MainActivity"
+    tools:openDrawer="start"
 
     >
 
     <FrameLayout
-        android:id="@+id/id_fragment_container"
         android:layout_width="match_parent"
+        android:layout_height="match_parent"
 
-        android:layout_height="match_parent"/>
+        android:id="@+id/id_fragment_container"/>
 
     <com.google.android.material.navigation.NavigationView
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="start"
+
 
         android:id="@+id/id_navigation_view_drawer">
 
@@ -39,6 +41,27 @@
                 android:text="@string/drawer_header_text"
                 android:textColor="@color/white"
                 android:textSize="20sp" />
+
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="4dp"
+                android:text="@string/add_new_location"
+                android:textSize="13sp"
+                android:backgroundTint="@color/teal_200"
+
+                android:id="@+id/id_button_add_new_location"/>
+
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="4dp"
+                android:text="@string/find_my_location"
+                android:textSize="13sp"
+                android:backgroundTint="@color/teal_700"
+
+                android:id="@+id/id_button_my_location"/>
+
 
             <androidx.recyclerview.widget.RecyclerView
                 android:layout_width="match_parent"

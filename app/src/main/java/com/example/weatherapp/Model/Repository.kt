@@ -1,5 +1,6 @@
 package com.example.weatherapp.Model
 
+import android.util.Log
 import com.example.weatherapp.Model.api.weatherModels.ResponseForecast
 import com.example.weatherapp.Model.cache.CacheAnswer
 import com.example.weatherapp.Model.cache.CacheDataSource
@@ -75,6 +76,23 @@ class Repository(private val cloud: Cloud, private val cache: CacheDataSource) {
             }
         }
         return repositoryAnswer
+    }
+
+    suspend fun repositorySearch(text: String): MutableList<String>{
+        val result = cloud.searchOnApi(text)
+
+        Log.d(TAG_REPOSITORY, "Во репозитории выполнен поиск с текстом: $text")
+        Log.d(TAG_REPOSITORY, "Во репозитории получен результат: $result")
+
+        val mutableList: MutableList<String> = mutableListOf()
+
+        if(result.isNotEmpty()){
+            for(i in result){
+                mutableList.add(i.name)
+            }
+        }
+
+     return mutableList
     }
 
     private fun getLocationId(): String{
