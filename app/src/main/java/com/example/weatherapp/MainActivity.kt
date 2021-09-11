@@ -105,19 +105,30 @@ class MainActivity: AppCompatActivity() {
             newOrExistsFragment.arguments = bundle
 
             hideKeyboardFrom(view)
+
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.id_fragment_container, newOrExistsFragment, TAG_WEATHER_FRAGMENT)
+                .commit()
         } else{
+            val newFragment = WeatherFragment()
             val bundle = Bundle()
             cacheLocationString = coordinatesOrLocationName
             bundle.putString(KEY_FOR_WEATHER_FRAGMENT, coordinatesOrLocationName)
-            (newOrExistsFragment as WeatherFragment).arguments = bundle
+            newFragment.arguments = bundle
 
             hideKeyboardFrom(view)
 
+            supportFragmentManager.beginTransaction().remove(newOrExistsFragment).commit()
+
+            supportFragmentManager.popBackStack()
+
+            supportFragmentManager.beginTransaction()
+                .add(R.id.id_fragment_container, newFragment, TAG_WEATHER_FRAGMENT)
+                .commit()
+
         }
 
-        supportFragmentManager.beginTransaction()
-            .replace(R.id.id_fragment_container, newOrExistsFragment, TAG_WEATHER_FRAGMENT)
-            .commit()
+
     }
 
     private fun hideKeyboardFrom(view: View) {
