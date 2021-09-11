@@ -8,6 +8,7 @@ import com.example.weatherapp.Model.cache.DataBaseAnswer
 import com.example.weatherapp.Model.cache.RealmLocationModel
 import com.example.weatherapp.Model.cloud.Cloud
 import com.example.weatherapp.Model.cloud.CloudAnswer
+import com.example.weatherapp.Model.cloud.CloudError
 
 class Repository(private val cloud: Cloud, private val cache: CacheDataSource) {
     //private val cloud = Cloud()
@@ -30,8 +31,11 @@ class Repository(private val cloud: Cloud, private val cache: CacheDataSource) {
                 val forecast = searchResult.data.forecast.forecastday
                 val isSaved = cache.checkSave(getLocationId())
 
+                Log.d(TAG_REPOSITORY, "В репозитории сохранено: ${isSaved}")
+
                 return  RepositoryResult.CloudSuccessRepositoryResult(location, current, forecast, isSaved)
             }
+            else -> return RepositoryResult.CloudErrorRepositoryResult("Непонятный ответ от репозитория", CloudError.NO_TYPE_ERROR)
         }
     }
 

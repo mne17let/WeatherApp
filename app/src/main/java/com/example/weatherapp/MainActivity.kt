@@ -2,6 +2,7 @@ package com.example.weatherapp
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
@@ -11,6 +12,8 @@ import android.location.LocationManager
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
@@ -57,8 +60,6 @@ class MainActivity: AppCompatActivity() {
         setWeatherLiveData()
     }
 
-
-
     private fun setStartFragment(){
         val weatherFragment = WeatherFragment()
         val bundle = Bundle()
@@ -78,7 +79,7 @@ class MainActivity: AppCompatActivity() {
             .replace(R.id.id_fragment_container, SearchFragment()).addToBackStack(TAG_SEARCH_FRAGMENT).commit()
     }
 
-    fun openNewLocationFragment(coordinatesOrLocationName: String){
+    fun openNewFoundLocationFragment(coordinatesOrLocationName: String){
         val weatherFragment = WeatherFragment()
         val bundle = Bundle()
         cacheLocationString = coordinatesOrLocationName
@@ -89,6 +90,26 @@ class MainActivity: AppCompatActivity() {
         supportFragmentManager.beginTransaction()
             .replace(R.id.id_fragment_container, weatherFragment)
             .commit()
+    }
+
+    fun openNewSearchLocationFragment(coordinatesOrLocationName: String, view: View){
+        val weatherFragment = WeatherFragment()
+        val bundle = Bundle()
+        cacheLocationString = coordinatesOrLocationName
+        bundle.putString(KEY_FOR_WEATHER_FRAGMENT, coordinatesOrLocationName)
+
+        weatherFragment.arguments = bundle
+
+        hideKeyboardFrom(view)
+
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.id_fragment_container, weatherFragment)
+            .commit()
+    }
+
+    private fun hideKeyboardFrom(view: View) {
+        val imm: InputMethodManager = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(view.windowToken, 0);
     }
 
     private fun setWeatherLiveData(){

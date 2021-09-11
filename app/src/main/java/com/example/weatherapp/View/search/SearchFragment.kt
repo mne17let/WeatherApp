@@ -116,7 +116,7 @@ class SearchFragment: Fragment(R.layout.fragment_search), SearchAdapter.ClickLis
     }
 
     override fun onClick(string: String) {
-        (activity as MainActivity).openNewLocationFragment(string)
+        (activity as MainActivity).openNewSearchLocationFragment(string, searchEditText)
     }
 
 }

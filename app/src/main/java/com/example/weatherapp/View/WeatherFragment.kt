@@ -227,6 +227,7 @@ class WeatherFragment : Fragment(R.layout.fragment_weather), LocationListener, S
                     Glide.with(imageViewWeatherIcon).load(url).into(imageViewWeatherIcon)
 
                     if (it.currentWeather.isSaved) {
+                        Log.d(TAG_WEATHER_FRAGMENT, "Сохранено: ${it.currentWeather.isSaved}")
                         saveDeleteButton.setImageResource(R.drawable.ic_delete)
                         textViewSaveOrDelete.text = getString(R.string.delete)
                         Toast.makeText(
@@ -234,6 +235,9 @@ class WeatherFragment : Fragment(R.layout.fragment_weather), LocationListener, S
                             "Местоположение сохранено",
                             Toast.LENGTH_SHORT
                         ).show()
+                    } else{
+                        saveDeleteButton.setImageResource(R.drawable.ic_save)
+                        textViewSaveOrDelete.text = getString(R.string.save)
                     }
 
                     fullLayout.visibility = View.VISIBLE
@@ -389,7 +393,7 @@ class WeatherFragment : Fragment(R.layout.fragment_weather), LocationListener, S
 
         locationManager.removeUpdates(this)
 
-        (activity as MainActivity).openNewLocationFragment("$shirota,$dolgota")
+        (activity as MainActivity).openNewFoundLocationFragment("$shirota,$dolgota")
     }
 
     override fun onProviderDisabled(provider: String) {

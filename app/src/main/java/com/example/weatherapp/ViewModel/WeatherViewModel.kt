@@ -26,8 +26,10 @@ class WeatherViewModel(private val repository: Repository): ViewModel() {
             Log.d(TAG_VIEWMODEL, "Во вьюмодель получены данные: $result")
 
             when(result){
-                is RepositoryResult.CloudSuccessRepositoryResult ->
+                is RepositoryResult.CloudSuccessRepositoryResult ->{
+                    Log.d(TAG_VIEWMODEL, "Во вьюмодели сохранено: ${result.isSaved}")
                     cloudLiveData.value = LiveDataState.Weather(result)
+                }
                 is RepositoryResult.CloudErrorRepositoryResult ->
                     cloudLiveData.value = LiveDataState.Error(result)
             }
