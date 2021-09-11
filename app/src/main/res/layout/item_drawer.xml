@@ -8,7 +8,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Город"
-        android:textSize="30sp"
+        android:textSize="20sp"
         android:layout_margin="4dp"
 
         android:id="@+id/id_textview_item_save_location"/>

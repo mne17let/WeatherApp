@@ -29,7 +29,7 @@ class Repository(private val cloud: Cloud, private val cache: CacheDataSource) {
                 val current = searchResult.data.current
                 val location = searchResult.data.location
                 val forecast = searchResult.data.forecast.forecastday
-                val isSaved = cache.checkSave(getLocationId())
+                val isSaved = cache.checkSave(location.name, location.region, location.country)
 
                 Log.d(TAG_REPOSITORY, "В репозитории сохранено: ${isSaved}")
 
@@ -41,10 +41,15 @@ class Repository(private val cloud: Cloud, private val cache: CacheDataSource) {
 
     suspend fun addOrRemoveLocation(): RepositoryResult {
         val realmObject = RealmLocationModel()
-        val cityName = cachedCityWeather?.location?.name.toString()
+        val var_cityName = cachedCityWeather?.location?.name.toString()
+        val var_region = cachedCityWeather?.location?.region.toString()
+        val var_country = cachedCityWeather?.location?.country.toString()
 
-        realmObject.cityName = cityName
-        realmObject.idCityRegionCountry = getLocationId()
+        realmObject.cityName = var_cityName
+        realmObject.region = var_region
+        realmObject.country = var_country
+
+        Log.d(TAG_REPOSITORY, "В репозитории удаляю: ${cachedCityWeather}")
 
         val cacheAnswer = cache.addOrRemoveObject(realmObject)
 
@@ -54,7 +59,11 @@ class Repository(private val cloud: Cloud, private val cache: CacheDataSource) {
             is CacheAnswer.SaveOrDeleteSuccess -> {
                 repositoryResult =
                     RepositoryResult.CacheRepositoryResult(cacheAnswer.message, false, cacheAnswer.list)
-            }
+
+                Log.d(TAG_REPOSITORY, "В репозитории список сохранённых: ${cacheAnswer.list}")
+                Log.d(TAG_REPOSITORY, "В репозитории кэш: $cachedCityWeather")
+                }
+
             is CacheAnswer.SaveOrDeleteError -> {
                 repositoryResult = RepositoryResult.CacheRepositoryResult(cacheAnswer.message, true, cacheAnswer.list)
             }

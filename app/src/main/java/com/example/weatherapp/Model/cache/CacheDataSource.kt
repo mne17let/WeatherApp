@@ -17,10 +17,20 @@ class CacheDataSource() {
 
             try {
                 val realm = Realm.getDefaultInstance()
-                val alreadyExistsLocation: RealmLocationModel? = realm.where(RealmLocationModel::class.java)
-                    .equalTo("idCityRegionCountry", realmLocationModel.idCityRegionCountry).findFirst()
+                val listCity: List<RealmLocationModel> = realm.where(RealmLocationModel::class.java)
+                    .equalTo("cityName", realmLocationModel.cityName).findAll()
 
-                if(alreadyExistsLocation == null){
+                val listRegion = listCity.filter {
+                    it.region == realmLocationModel.region
+                }
+
+                val oneModelByCountry = listRegion.find{
+                    it.country == realmLocationModel.country
+                }
+
+                val alreadyExistsLocation = oneModelByCountry == null
+
+                if(alreadyExistsLocation == true){
                     val transaction = object : Realm.Transaction{
                         override fun execute(realm: Realm) {
                             realm.insert(realmLocationModel)
@@ -36,7 +46,7 @@ class CacheDataSource() {
                         val mutableList = mutableListOf<String>()
 
                         for(i in updatedList){
-                            mutableList.add(i.cityName)
+                            mutableList.add("${i.cityName}, ${i.region}, ${i.country}")
                         }
 
                         resultAnswer = CacheAnswer.SaveOrDeleteSuccess("Местоположение сохранено", mutableList)
@@ -46,12 +56,23 @@ class CacheDataSource() {
                 } else{
                     val transaction = object : Realm.Transaction{
                         override fun execute(realm: Realm) {
-                            val newAlreadyExistsLocation =
-                                realm.where(RealmLocationModel::class.java)
-                                    .equalTo("idCityRegionCountry", realmLocationModel.idCityRegionCountry)
-                                    .findFirst()
+                            val listFlterByCity: List<RealmLocationModel> = realm.where(RealmLocationModel::class.java)
+                                .equalTo("cityName", realmLocationModel.cityName).findAll()
 
-                            newAlreadyExistsLocation?.deleteFromRealm()
+                            val listFlterByRegion = listFlterByCity.filter {
+                                it.region == realmLocationModel.region
+                            }
+
+                            val findNeccessaryObject = listFlterByRegion.find{
+                                it.country == realmLocationModel.country
+                            }
+
+                            /*val newAlreadyExistsLocation =
+                                realm.where(RealmLocationModel::class.java)
+                                    .equalTo("cityName", realmLocationModel.cityName)
+                                    .findFirst()*/
+
+                            findNeccessaryObject?.deleteFromRealm()
                         }
                     }
 
@@ -65,7 +86,7 @@ class CacheDataSource() {
                         val mutableList = mutableListOf<String>()
 
                         for(i in updatedList){
-                            mutableList.add(i.cityName)
+                            mutableList.add("${i.cityName}, ${i.region}, ${i.country}")
                         }
 
                         resultAnswer = CacheAnswer.SaveOrDeleteSuccess("Местоположение удалено", mutableList)
@@ -86,17 +107,29 @@ class CacheDataSource() {
         return resultAnswer
     }
 
-    suspend fun checkSave(id: String): Boolean{
+    suspend fun checkSave(city: String, region: String, country: String): Boolean{
         var resultAnswer: Boolean
 
         withContext(Dispatchers.IO){
 
             try {
                 val realm = Realm.getDefaultInstance()
-                val alreadyExistsLocation: RealmLocationModel? = realm.where(RealmLocationModel::class.java)
-                    .equalTo("idCityRegionCountry", id).findFirst()
 
-                if(alreadyExistsLocation == null){
+                val listFlterByCity: List<RealmLocationModel> = realm.where(RealmLocationModel::class.java)
+                    .equalTo("cityName", city).findAll()
+
+                val listFlterByRegion = listFlterByCity.filter {
+                    it.region == region
+                }
+
+                val findObject = listFlterByRegion.find{
+                    it.country == country
+                }
+
+                /*val alreadyExistsLocation: RealmLocationModel? = realm.where(RealmLocationModel::class.java)
+                    .equalTo("idCityRegionCountry", id).findFirst()*/
+
+                if(findObject == null){
                     resultAnswer = false
                     realm.close()
                 } else{
@@ -128,7 +161,7 @@ class CacheDataSource() {
                 val mutableList = mutableListOf<String>()
 
                 for(i in locationsFromDB){
-                    mutableList.add(i.cityName)
+                    mutableList.add("${i.cityName}, ${i.region}, ${i.country}")
                 }
 
                 result = DataBaseAnswer.SuccessGetData("Успешно получены данные из базы данных", mutableList)

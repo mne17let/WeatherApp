@@ -12,21 +12,32 @@ import com.example.weatherapp.R
 class SaveListAdapter(diffUtli: MyInterfaceForListAdapter, private val requireContext: Context,
     private val listener: SaveClickListener): ListAdapter<String, SaveLocationHolder>(diffUtli) {
 
-    private var holdersViewsList: MutableList<View> = mutableListOf()
+    private val TAG_SAVE_LIST_ADAPTER = "MySaveListAdapter"
 
+    private var holdersViewsList: MutableList<View> = mutableListOf()
 
 
     override fun onBindViewHolder(holder: SaveLocationHolder, position: Int) {
         val currentStringLocationInList = getItem(position)
         holder.bind(currentStringLocationInList)
 
-        holdersViewsList.add(holder.newView)
+        Log.d(TAG_SAVE_LIST_ADAPTER, "В адаптере вызван холдер с позицией: $position")
+        Log.d(TAG_SAVE_LIST_ADAPTER, "В адаптере список: $$currentList")
+        Log.d(TAG_SAVE_LIST_ADAPTER, "В адаптере размер списка: ${currentList.size}")
+        Log.d(TAG_SAVE_LIST_ADAPTER, "В адаптере в методе bind вызван: $currentStringLocationInList")
+
+        if(!holdersViewsList.contains(holder.newView)){
+            holdersViewsList.add(holder.newView)
+        }
 
         holder.newView.setOnClickListener{
             for (i in holdersViewsList){
                 i.setBackgroundColor(requireContext.resources.getColor(R.color.white))
             }
             it.setBackgroundColor(requireContext.resources.getColor(R.color.selected_saved_item))
+
+            Log.d(TAG_SAVE_LIST_ADAPTER, "Нажат холдер: $holder")
+            Log.d(TAG_SAVE_LIST_ADAPTER, "Нажат холдер: $currentStringLocationInList")
 
             listener.onClick(getItem(position))
         }
@@ -35,6 +46,7 @@ class SaveListAdapter(diffUtli: MyInterfaceForListAdapter, private val requireCo
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SaveLocationHolder {
         val viewForHolder = LayoutInflater.from(parent.context).inflate(viewType, parent, false)
         val problemHolderInstance = SaveLocationHolder(viewForHolder)
+
         return problemHolderInstance
     }
 

@@ -7,17 +7,17 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="@color/drawer_header"
-    tools:openDrawer="start"
 
     android:id="@+id/id_layout_drawer"
     >
+
+    <!--tools:openDrawer="start"-->
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
         android:visibility="visible"
-
         android:id="@+id/id_full_frame_weather_fragment">
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -49,7 +49,7 @@
                 android:text="@string/save"
                 android:textColor="@color/white"
                 app:layout_constraintHorizontal_bias="1"
-                android:textSize="20sp"
+                android:textSize="15sp"
 
                 android:id="@+id/id_textview_save_or_delete" />
 
@@ -74,21 +74,23 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="horizontal"
+            android:gravity="center">
 
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="25sp"
-                tools:text="Город"
-                android:layout_gravity="center"
+                android:text="Город"
+                android:layout_gravity="center_vertical"
                 android:textColor="@color/white"
+                android:layout_margin="4dp"
 
                 android:id="@+id/id_textview_cityname"/>
 
             <LinearLayout
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:layout_margin="4dp">
@@ -113,43 +115,18 @@
 
             </LinearLayout>
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                tools:text="Описание погоды"
-                android:layout_margin="4dp"
-                android:textSize="20sp"
-                android:gravity="center"
-                android:textColor="@color/white"
-
-                android:id="@+id/id_textview_current_weather_description"/>
-
         </LinearLayout>
 
-        <!--<LinearLayout
-            android:layout_width="wrap_content"
+        <TextView
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            tools:text="Описание погоды"
+            android:layout_margin="4dp"
+            android:textSize="20sp"
+            android:gravity="center"
+            android:textColor="@color/white"
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                tools:text="Макс"
-                android:layout_margin="2dp"
-                android:textSize="15sp"
-
-                android:id="@+id/id_textview_max_temperature_of_current_day"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                tools:text="Мин"
-                android:layout_margin="2dp"
-                android:textSize="15sp"
-
-                android:id="@+id/id_textview_min_temperature_of_current_day"/>
-
-        </LinearLayout>-->
+            android:id="@+id/id_textview_current_weather_description"/>
 
         <androidx.recyclerview.widget.RecyclerView
             android:layout_width="match_parent"
@@ -157,6 +134,25 @@
             android:layout_margin="4dp"
 
             android:id="@+id/id_recyclerview_forecast"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:visibility="gone"
+
+        android:id="@+id/id_empty_fragment">
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/add_new_location"
+
+            android:id="@+id/id_empty_weather_fragment_add_new_location"/>
+
     </LinearLayout>
 
     <LinearLayout
@@ -164,7 +160,7 @@
         android:layout_height="match_parent"
         android:gravity="center"
         android:orientation="vertical"
-        android:visibility="visible"
+        android:visibility="gone"
 
         android:id="@+id/id_loading_fragment">
 
@@ -185,24 +181,6 @@
             android:visibility="gone"
 
             android:id="@+id/id_button_try_again"/>
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:gravity="center"
-        android:visibility="gone"
-
-        android:id="@+id/id_empty_fragment">
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/add_new_location"
-
-            android:id="@+id/id_empty_weather_fragment_add_new_location"/>
 
     </LinearLayout>
 

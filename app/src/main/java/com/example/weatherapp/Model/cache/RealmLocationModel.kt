@@ -5,6 +5,7 @@ import io.realm.annotations.PrimaryKey
 
 open class RealmLocationModel: RealmObject() {
     @PrimaryKey
-    var idCityRegionCountry: String = ""
     var cityName: String = ""
+    var region: String = ""
+    var country: String = ""
 }
