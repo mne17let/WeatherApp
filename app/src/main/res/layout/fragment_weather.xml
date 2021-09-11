@@ -17,7 +17,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:visibility="visible"
+        android:visibility="gone"
         android:id="@+id/id_full_frame_weather_fragment">
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -160,7 +160,7 @@
         android:layout_height="match_parent"
         android:gravity="center"
         android:orientation="vertical"
-        android:visibility="gone"
+        android:visibility="visible"
 
         android:id="@+id/id_loading_fragment">
 

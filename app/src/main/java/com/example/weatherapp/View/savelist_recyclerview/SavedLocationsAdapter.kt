@@ -24,6 +24,8 @@ class SavedLocationsAdapter(private val necessaryContext: Context,
         this.isClicked = isClicked
         this.itemClicked = itemClicked
 
+        Log.d(TAG_SAVED_LOCATIONS_ADAPTER, "В адаптер установлены: $isClicked и $itemClicked")
+
         notifyDataSetChanged()
     }
 
@@ -47,9 +49,11 @@ class SavedLocationsAdapter(private val necessaryContext: Context,
 
         if(isClicked == true){
             if(locationsList[position] == itemClicked){
+                Log.d(TAG_SAVED_LOCATIONS_ADAPTER, "Сравнение: ${locationsList[position]} и $itemClicked")
                 holder.newView.setBackgroundColor(necessaryContext.resources.getColor(R.color.selected_saved_item))
                 Log.d(TAG_SAVED_LOCATIONS_ADAPTER, "Байнд нажатого: ${locationsList[position]}")
             } else{
+                Log.d(TAG_SAVED_LOCATIONS_ADAPTER, "Сравнение: ${locationsList[position]} и $itemClicked")
                 holder.newView.setBackgroundColor(necessaryContext.resources.getColor(R.color.white))
                 Log.d(TAG_SAVED_LOCATIONS_ADAPTER, "Байнд ненажатого: ${locationsList[position]}")
             }
@@ -70,7 +74,6 @@ class SavedLocationsAdapter(private val necessaryContext: Context,
     override fun getItemCount(): Int {
         return locationsList.size
     }
-
 
     interface SaveClickListener {
         fun onClick(string: String)
