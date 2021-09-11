@@ -48,8 +48,10 @@ class SavedLocationsAdapter(private val necessaryContext: Context,
         if(isClicked == true){
             if(locationsList[position] == itemClicked){
                 holder.newView.setBackgroundColor(necessaryContext.resources.getColor(R.color.selected_saved_item))
+                Log.d(TAG_SAVED_LOCATIONS_ADAPTER, "Байнд нажатого: ${locationsList[position]}")
             } else{
                 holder.newView.setBackgroundColor(necessaryContext.resources.getColor(R.color.white))
+                Log.d(TAG_SAVED_LOCATIONS_ADAPTER, "Байнд ненажатого: ${locationsList[position]}")
             }
         }
 

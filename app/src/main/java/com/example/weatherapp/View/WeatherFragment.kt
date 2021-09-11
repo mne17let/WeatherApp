@@ -258,12 +258,12 @@ class WeatherFragment : Fragment(R.layout.fragment_weather), LocationListener, S
         Glide.with(imageViewWeatherIcon).load(stringUrl).into(imageViewWeatherIcon)
 
         if (isSaved) {
-            Log.d(TAG_WEATHER_FRAGMENT, "Фрагмент. Текущая локация сохраена: ${isSaved}")
+            Log.d(TAG_WEATHER_FRAGMENT, "Фрагмент. Текущая локация сохранена: ${isSaved}")
             saveDeleteButton.setImageResource(R.drawable.ic_delete)
             textViewSaveOrDelete.text = getString(R.string.delete)
             isDrawerClicked = true
             currentDrawerClicked = newCache
-            drawerAdapter.setClicked(isDrawerClicked, currentDrawerClicked)
+            //drawerAdapter.setClicked(isDrawerClicked, currentDrawerClicked)
             Log.d(TAG_WEATHER_FRAGMENT, "Кэш во фрагменте: $newCache")
             Toast.makeText(requireContext(), "Сохранённое", Toast.LENGTH_SHORT).show()
         } else{
@@ -271,7 +271,7 @@ class WeatherFragment : Fragment(R.layout.fragment_weather), LocationListener, S
             currentDrawerClicked = null
             Log.d(TAG_WEATHER_FRAGMENT, "Фрагмент. Текущая локация сохранена: ${isSaved}")
             saveDeleteButton.setImageResource(R.drawable.ic_save)
-            drawerAdapter.setClicked(isDrawerClicked, currentDrawerClicked)
+            //drawerAdapter.setClicked(isDrawerClicked, currentDrawerClicked)
             textViewSaveOrDelete.text = getString(R.string.save)
         }
 
@@ -495,11 +495,15 @@ class WeatherFragment : Fragment(R.layout.fragment_weather), LocationListener, S
         isDrawerClicked = true
 
         if(string != currentDrawerClicked){
+
+            currentDrawerClicked = string
             Log.d(TAG_WEATHER_FRAGMENT, "Текущий drawerClicked: $currentDrawerClicked")
 
             Log.d(TAG_WEATHER_FRAGMENT, "Текущий кэш: $cacheLocationName")
             cacheLocationName = string
             drawer.closeDrawer(GravityCompat.START)
+
+            drawerAdapter.setClicked(isDrawerClicked, currentDrawerClicked)
 
             Log.d(TAG_WEATHER_FRAGMENT, "Новый кэш: $cacheLocationName")
 
