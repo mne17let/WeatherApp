@@ -30,10 +30,10 @@
             android:orientation="horizontal">
 
             <LinearLayout
-                android:layout_width="0dp"
+                android:layout_width="70dp"
                 android:layout_height="match_parent"
                 android:orientation="vertical"
-                android:layout_gravity="center"
+                android:gravity="center"
                 android:layout_margin="8dp"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -93,7 +93,7 @@
             </LinearLayout>
 
             <TextView
-                android:layout_width="0dp"
+                android:layout_width="70dp"
                 android:layout_height="match_parent"
                 tools:text="+30"
                 android:textSize="30sp"

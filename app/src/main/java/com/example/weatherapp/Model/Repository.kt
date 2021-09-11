@@ -15,23 +15,21 @@ class Repository(private val cloud: Cloud, private val cache: CacheDataSource) {
 
     private val TAG_REPOSITORY = "MyRepository"
 
-    private var cachedCityWeather: ResponseForecast? = null
+    //private var cachedCityWeather: ResponseForecast? = null
 
     suspend fun getWeatherFromRepository(searchText: String): RepositoryResult{
         val searchResult = cloud.getWeather(searchText)
         when(searchResult){
             is CloudAnswer.Error ->{
-                cachedCityWeather = null
                 return RepositoryResult.CloudErrorRepositoryResult(searchResult.message, searchResult.errorType)
             }
             is CloudAnswer.Success ->{
-                cachedCityWeather = searchResult.data
                 val current = searchResult.data.current
                 val location = searchResult.data.location
                 val forecast = searchResult.data.forecast.forecastday
                 val isSaved = cache.checkSave(location.name, location.region, location.country)
 
-                Log.d(TAG_REPOSITORY, "В репозитории сохранено: ${isSaved}")
+                Log.d(TAG_REPOSITORY, "Репозиторий. Данное местоположение сохранено: ${isSaved}")
 
                 return  RepositoryResult.CloudSuccessRepositoryResult(location, current, forecast, isSaved)
             }
@@ -39,17 +37,17 @@ class Repository(private val cloud: Cloud, private val cache: CacheDataSource) {
         }
     }
 
-    suspend fun addOrRemoveLocation(): RepositoryResult {
+    suspend fun addOrRemoveLocation(city: String, region: String, country: String): RepositoryResult {
         val realmObject = RealmLocationModel()
-        val var_cityName = cachedCityWeather?.location?.name.toString()
-        val var_region = cachedCityWeather?.location?.region.toString()
-        val var_country = cachedCityWeather?.location?.country.toString()
+        val var_cityName = city
+        val var_region = region
+        val var_country = country
 
         realmObject.cityName = var_cityName
         realmObject.region = var_region
         realmObject.country = var_country
 
-        Log.d(TAG_REPOSITORY, "В репозитории удаляю: ${cachedCityWeather}")
+        Log.d(TAG_REPOSITORY, "В репозитории удаляю: $city + $region + $country")
 
         val cacheAnswer = cache.addOrRemoveObject(realmObject)
 
@@ -60,8 +58,7 @@ class Repository(private val cloud: Cloud, private val cache: CacheDataSource) {
                 repositoryResult =
                     RepositoryResult.CacheRepositoryResult(cacheAnswer.message, false, cacheAnswer.list)
 
-                Log.d(TAG_REPOSITORY, "В репозитории список сохранённых: ${cacheAnswer.list}")
-                Log.d(TAG_REPOSITORY, "В репозитории кэш: $cachedCityWeather")
+                Log.d(TAG_REPOSITORY, "Репозиторий. Из кэша после удаления или сохранения вернулся список: ${cacheAnswer.list}")
                 }
 
             is CacheAnswer.SaveOrDeleteError -> {
@@ -107,16 +104,4 @@ class Repository(private val cloud: Cloud, private val cache: CacheDataSource) {
 
      return mutableList
     }
-
-    private fun getLocationId(): String{
-        val cityName = cachedCityWeather?.location?.name.toString()
-        val region = cachedCityWeather?.location?.region.toString().lowercase()
-        val country = cachedCityWeather?.location?.country.toString().lowercase()
-
-
-        return "${cityName.lowercase()}$region$country"
-    }
-
-
-
 }

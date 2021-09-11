@@ -37,6 +37,7 @@ class MainActivity: AppCompatActivity() {
 
     private val TAG_ACTIVITY = "MyMainActivity"
     private val KEY_FOR_WEATHER_FRAGMENT = "CacheOrNull"
+    private val TAG_WEATHER_FRAGMENT = "WeatherFragment"
 
     private lateinit var sharedPreferences: SharedPreferences
 
@@ -68,7 +69,7 @@ class MainActivity: AppCompatActivity() {
         weatherFragment.arguments = bundle
 
         supportFragmentManager.beginTransaction()
-            .replace(R.id.id_fragment_container, weatherFragment)
+            .replace(R.id.id_fragment_container, weatherFragment, TAG_WEATHER_FRAGMENT)
             .commit()
     }
 
@@ -93,17 +94,29 @@ class MainActivity: AppCompatActivity() {
     }
 
     fun openNewSearchLocationFragment(coordinatesOrLocationName: String, view: View){
-        val weatherFragment = WeatherFragment()
-        val bundle = Bundle()
-        cacheLocationString = coordinatesOrLocationName
-        bundle.putString(KEY_FOR_WEATHER_FRAGMENT, coordinatesOrLocationName)
+        var newOrExistsFragment = supportFragmentManager.findFragmentByTag(TAG_WEATHER_FRAGMENT)
 
-        weatherFragment.arguments = bundle
+        if(newOrExistsFragment == null){
+            newOrExistsFragment = WeatherFragment()
+            val bundle = Bundle()
+            cacheLocationString = coordinatesOrLocationName
+            bundle.putString(KEY_FOR_WEATHER_FRAGMENT, coordinatesOrLocationName)
 
-        hideKeyboardFrom(view)
+            newOrExistsFragment.arguments = bundle
+
+            hideKeyboardFrom(view)
+        } else{
+            val bundle = Bundle()
+            cacheLocationString = coordinatesOrLocationName
+            bundle.putString(KEY_FOR_WEATHER_FRAGMENT, coordinatesOrLocationName)
+            (newOrExistsFragment as WeatherFragment).arguments = bundle
+
+            hideKeyboardFrom(view)
+
+        }
 
         supportFragmentManager.beginTransaction()
-            .replace(R.id.id_fragment_container, weatherFragment)
+            .replace(R.id.id_fragment_container, newOrExistsFragment, TAG_WEATHER_FRAGMENT)
             .commit()
     }
 
@@ -120,7 +133,7 @@ class MainActivity: AppCompatActivity() {
                 val country = it.currentWeather.location.country
 
                 cacheLocationString = "$cityName, $region, $country"
-                Log.d(TAG_ACTIVITY, "$cityName, $region, $country")
+                Log.d(TAG_ACTIVITY, "Обновление лайвдаты с погодой.Кэш в активити: $cityName, $region, $country")
             }
         }
     }

@@ -38,6 +38,15 @@ class WeatherFragment : Fragment(R.layout.fragment_weather), LocationListener, S
     private val TAG_WEATHER_FRAGMENT = "MyWeatherFragment"
     private val KEY_FOR_WEATHER_FRAGMENT = "CacheOrNull"
 
+    private var cacheCity = ""
+    private var cacheRegion = ""
+    private var cacheCountry = ""
+
+    private var cacheLocationName: String? = null
+    private var isDrawerClicked = false
+    private var currentDrawerClicked: String? = null
+    private var wasOpened = false
+
     private lateinit var drawer: DrawerLayout
 
     //RecyclerView in Drawer
@@ -64,12 +73,13 @@ class WeatherFragment : Fragment(R.layout.fragment_weather), LocationListener, S
             } else{
                 if(cacheLocationName == null){
                     setEmptyLayout()
+                } else{
+                    setUsualLayout()
                 }
             }
         }
 
     private lateinit var locationManager: LocationManager
-
 
     private lateinit var burger: ImageButton
     private lateinit var textViewCityName: TextView
@@ -90,34 +100,30 @@ class WeatherFragment : Fragment(R.layout.fragment_weather), LocationListener, S
 
     private lateinit var constraintMenuSaveDelete: ConstraintLayout
 
-
-
     // RecyclerView
     private lateinit var recyclerViewForecast: RecyclerView
     private lateinit var forecastAdapter: ForecastAdapter
 
     private lateinit var viewModel: WeatherViewModel
 
-    private var cacheLocationName: String? = null
-
-    private var shouldAskLocation: Boolean = true
+    fun setNewState(newCache: String){
+        cacheLocationName = newCache
+        cacheCity = ""
+        cacheRegion = ""
+        cacheCountry = ""
+    }
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        cacheLocationName = arguments?.getString(KEY_FOR_WEATHER_FRAGMENT, null)
-
-        shouldAskLocation = cacheLocationName == null
 
         locationManager = requireContext().getSystemService(Context.LOCATION_SERVICE) as LocationManager
-
-        if(shouldAskLocation){
-            workWithPermission()
-        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        cacheLocationName = arguments?.getString(KEY_FOR_WEATHER_FRAGMENT, null)
 
         burger = view.findViewById(R.id.id_burger)
         textViewCityName = view.findViewById(R.id.id_textview_cityname)
@@ -147,13 +153,15 @@ class WeatherFragment : Fragment(R.layout.fragment_weather), LocationListener, S
         searchButtonDrawer = view.findViewById(R.id.id_button_add_new_location)
         findMeButton = view.findViewById(R.id.id_button_my_location)
 
-        fullLayout.visibility = View.GONE
-        emptyLayout.visibility = View.GONE
-
-        loadingFragmentLayout.visibility = View.VISIBLE
-
+        setLoadingLayout()
 
         init()
+
+        if(cacheLocationName == null){
+            workWithPermission()
+        } else if(wasOpened == false) {
+            viewModel.getWeather(cacheLocationName!!)
+        }
     }
 
     private fun init() {
@@ -171,14 +179,6 @@ class WeatherFragment : Fragment(R.layout.fragment_weather), LocationListener, S
         setStartDrawerList()
         setSearchDrawerButton()
         setFindMeButton()
-
-        if(cacheLocationName != null){
-            getCurrentWeather()
-            Log.d(TAG_WEATHER_FRAGMENT, "Получаю погоду")
-        } else{
-            //setEmptyLayout()
-            Log.d(TAG_WEATHER_FRAGMENT, "Засетил пустой фрагмент")
-        }
     }
 
     private fun setDrawerRecyclerView(){
@@ -204,12 +204,12 @@ class WeatherFragment : Fragment(R.layout.fragment_weather), LocationListener, S
 
     private fun setSaveButton() {
         saveDeleteButton.setOnClickListener {
-            Log.d(TAG_WEATHER_FRAGMENT, "Во фрагменте запущено удаление")
-            viewModel.saveOrDeleteCurrentLocation()
+            Log.d(TAG_WEATHER_FRAGMENT, "Фрагмент с погодой. Удаление/сохранение")
+            viewModel.saveOrDeleteCurrentLocation(cacheCity, cacheRegion, cacheCountry)
         }
 
         textViewSaveOrDelete.setOnClickListener {
-            viewModel.saveOrDeleteCurrentLocation()
+            viewModel.saveOrDeleteCurrentLocation(cacheCity, cacheRegion, cacheCountry)
         }
     }
 
@@ -221,7 +221,7 @@ class WeatherFragment : Fragment(R.layout.fragment_weather), LocationListener, S
 
     private fun setCloudLiveData() {
         viewModel.cloudLiveData.observe(viewLifecycleOwner, {
-            Log.d(TAG_WEATHER_FRAGMENT, "Во фрагменте получен ответ: $it")
+            Log.d(TAG_WEATHER_FRAGMENT, "Обновление лайвдаты. Получена погода: $it")
 
             when (it) {
                 is WeatherViewModel.LiveDataState.Weather -> {
@@ -241,25 +241,36 @@ class WeatherFragment : Fragment(R.layout.fragment_weather), LocationListener, S
         val forecast = currentWeather.forecast
         val isSaved = currentWeather.isSaved
 
-
         textViewCityName.text = location.name
 
         val roundTemp = current.temp_c.roundToInt()
         textViewCurrentTemperature.text = if(roundTemp > 0) "+$roundTemp" else roundTemp.toString()
 
-        currentDescriptionTextView.text = "${location.country}, ${location.region}, ${location.name}"
+        val newCache = "${location.country}, ${location.region}, ${location.name}"
+
+        cacheCity = location.name
+        cacheRegion = location.region
+        cacheCountry = location.country
+
+        currentDescriptionTextView.text = newCache
 
         val stringUrl = "https:${current.condition.icon_url}"
         Glide.with(imageViewWeatherIcon).load(stringUrl).into(imageViewWeatherIcon)
 
         if (isSaved) {
-            Log.d(TAG_WEATHER_FRAGMENT, "Во фрагменте сохранено: ${isSaved}")
+            Log.d(TAG_WEATHER_FRAGMENT, "Фрагмент. Текущая локация сохраена: ${isSaved}")
             saveDeleteButton.setImageResource(R.drawable.ic_delete)
             textViewSaveOrDelete.text = getString(R.string.delete)
+            isDrawerClicked = true
+            currentDrawerClicked = location.name
+            drawerAdapter.setClicked(isDrawerClicked, currentDrawerClicked)
             Toast.makeText(requireContext(), "Местоположение сохранено", Toast.LENGTH_SHORT).show()
         } else{
-            Log.d(TAG_WEATHER_FRAGMENT, "Во фрагменте сохранено: ${isSaved}")
+            isDrawerClicked = false
+            currentDrawerClicked = null
+            Log.d(TAG_WEATHER_FRAGMENT, "Фрагмент. Текущая локация сохранена: ${isSaved}")
             saveDeleteButton.setImageResource(R.drawable.ic_save)
+            drawerAdapter.setClicked(isDrawerClicked, currentDrawerClicked)
             textViewSaveOrDelete.text = getString(R.string.save)
         }
 
@@ -304,16 +315,13 @@ class WeatherFragment : Fragment(R.layout.fragment_weather), LocationListener, S
             })
     }
 
-    private fun getCurrentWeather(){
+    fun setLoadingLayout(){
         emptyLayout.visibility = View.GONE
         fullLayout.visibility = View.GONE
         loadingFragmentLayout.visibility = View.VISIBLE
-
-        progressBar.isIndeterminate = true
-
         drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
 
-        cacheLocationName?.let { viewModel.getWeather(it) }
+        progressBar.isIndeterminate = true
     }
 
     private fun setEmptyLayout(){
@@ -325,15 +333,29 @@ class WeatherFragment : Fragment(R.layout.fragment_weather), LocationListener, S
         drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
     }
 
+    fun setUsualLayout(){
+        fullLayout.visibility = View.VISIBLE
+        loadingFragmentLayout.visibility = View.GONE
+
+        emptyLayout.visibility = View.GONE
+
+        drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
+    }
+
     private fun setDrawerLiveData(){
         viewModel.savedListLiveData.observe(viewLifecycleOwner){
             if(it.isEmpty()){
-                Log.d(TAG_WEATHER_FRAGMENT, "Во фрагмент пришёл пустой лист: $it")
-                Log.d(TAG_WEATHER_FRAGMENT, "Размер пустого листа сохранённых локаций: ${it.size}")
+                Log.d(TAG_WEATHER_FRAGMENT, "Во фрагмент пришёл пустой лист сохранённых локаций: $it")
                 drawerAdapter.setList(it)
+                isDrawerClicked = false
+                currentDrawerClicked = null
                 Toast.makeText(requireContext(), "Ничего не сохранено", Toast.LENGTH_SHORT).show()
             } else{
-                Log.d(TAG_WEATHER_FRAGMENT, "Во фрагмент пришёл лист: $it")
+                if(it.contains(currentDrawerClicked)){
+                    isDrawerClicked = true
+                    drawerAdapter.setClicked(isDrawerClicked, currentDrawerClicked)
+                }
+                Log.d(TAG_WEATHER_FRAGMENT, "Во фрагмент пришли сохранённые: $it")
                 Log.d(TAG_WEATHER_FRAGMENT, "Размер листа сохранённых локаций: ${it.size}")
                 drawerAdapter.setList(it)
             }
@@ -354,9 +376,11 @@ class WeatherFragment : Fragment(R.layout.fragment_weather), LocationListener, S
     fun setFindMeButton(){
         findMeButton.setOnClickListener {
             drawer.closeDrawer(GravityCompat.START)
-            loadingFragmentLayout.visibility = View.VISIBLE
-            fullLayout.visibility = View.GONE
-            progressBar.isIndeterminate = true
+            setLoadingLayout()
+            isDrawerClicked = false
+            currentDrawerClicked = null
+
+            drawerAdapter.setClicked(isDrawerClicked, currentDrawerClicked)
 
             workWithPermission()
         }
@@ -379,17 +403,15 @@ class WeatherFragment : Fragment(R.layout.fragment_weather), LocationListener, S
                 }
                 1 -> {
                     Snackbar.make(drawer, getString(R.string.gps_off), Snackbar.LENGTH_SHORT).show()
-                    emptyLayout.visibility = View.GONE
-                    progressBar.isIndeterminate = false
-                    fullLayout.visibility = View.VISIBLE
-                    loadingFragmentLayout.visibility = View.GONE
+                    if(cacheLocationName == null){
+                        setEmptyLayout()
+                    }
                 }
                 0 -> {
                     Snackbar.make(drawer, getString(R.string.network_off), Snackbar.LENGTH_SHORT).show()
-                    emptyLayout.visibility = View.GONE
-                    progressBar.isIndeterminate = false
-                    fullLayout.visibility = View.VISIBLE
-                    loadingFragmentLayout.visibility = View.GONE
+                    if(cacheLocationName == null){
+                        setEmptyLayout()
+                    }
                 }
             }
         } else {
@@ -426,7 +448,7 @@ class WeatherFragment : Fragment(R.layout.fragment_weather), LocationListener, S
     }
 
     override fun onLocationChanged(location: Location) {
-        Log.d(TAG_WEATHER_FRAGMENT, "Вызван метод изменения местоположения")
+        Log.d(TAG_WEATHER_FRAGMENT, "Местоположение найдено")
         val shirota = location.latitude.toString()
         val dolgota = location.longitude.toString()
 
@@ -468,13 +490,18 @@ class WeatherFragment : Fragment(R.layout.fragment_weather), LocationListener, S
     }
 
     override fun onClick(string: String) {
-        Log.d(TAG_WEATHER_FRAGMENT, "Текущий кэш: $cacheLocationName")
-        cacheLocationName = string
-        drawer.closeDrawer(GravityCompat.START)
 
-        Log.d(TAG_WEATHER_FRAGMENT, "Новый кэш: $cacheLocationName")
+        isDrawerClicked = true
 
-        Log.d(TAG_WEATHER_FRAGMENT, "В drawer нажат: $string")
-        viewModel.getWeather(string)
+        if(string != currentDrawerClicked){
+            Log.d(TAG_WEATHER_FRAGMENT, "Текущий кэш: $cacheLocationName")
+            cacheLocationName = string
+            drawer.closeDrawer(GravityCompat.START)
+
+            Log.d(TAG_WEATHER_FRAGMENT, "Новый кэш: $cacheLocationName")
+
+            Log.d(TAG_WEATHER_FRAGMENT, "В drawer нажат: $string")
+            viewModel.getWeather(string)
+        }
     }
 }

@@ -15,8 +15,17 @@ class SavedLocationsAdapter(private val necessaryContext: Context,
     private val TAG_SAVED_LOCATIONS_ADAPTER = "MySaveListAdapter"
 
     private var viewsList: MutableList<View> = mutableListOf()
-
     private var locationsList = emptyList<String>()
+    private var isClicked = false
+    private var itemClicked: String? = null
+
+
+    fun setClicked(isClicked: Boolean, itemClicked: String?){
+        this.isClicked = isClicked
+        this.itemClicked = itemClicked
+
+        notifyDataSetChanged()
+    }
 
     fun setList(list: List<String>) {
         locationsList = list
@@ -34,6 +43,14 @@ class SavedLocationsAdapter(private val necessaryContext: Context,
 
         if(!viewsList.contains(holder.newView)){
             viewsList.add(holder.newView)
+        }
+
+        if(isClicked == true){
+            if(locationsList[position] == itemClicked){
+                holder.newView.setBackgroundColor(necessaryContext.resources.getColor(R.color.selected_saved_item))
+            } else{
+                holder.newView.setBackgroundColor(necessaryContext.resources.getColor(R.color.white))
+            }
         }
 
         holder.newView.setOnClickListener{

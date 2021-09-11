@@ -36,9 +36,9 @@ class WeatherViewModel(private val repository: Repository): ViewModel() {
         }
     }
 
-    fun saveOrDeleteCurrentLocation(){
+    fun saveOrDeleteCurrentLocation(city: String, region: String, country: String){
         viewModelScope.launch {
-            val result: RepositoryResult = repository.addOrRemoveLocation()
+            val result: RepositoryResult = repository.addOrRemoveLocation(city, region, country)
 
             if(result is RepositoryResult.CacheRepositoryResult){
                 Log.d(TAG_VIEWMODEL, "Во вьюмодели список после удаления или добавления местоположения. До сортировки: ${result.newList}")

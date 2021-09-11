@@ -1,5 +1,6 @@
 package com.example.weatherapp.Model.cache
 
+import android.util.Log
 import io.realm.Realm
 import io.realm.RealmResults
 import io.realm.kotlin.where
@@ -8,6 +9,8 @@ import kotlinx.coroutines.withContext
 import java.lang.Exception
 
 class CacheDataSource() {
+
+    private val TAG_CACHE = "MyCache"
 
     suspend fun addOrRemoveObject(realmLocationModel: RealmLocationModel): CacheAnswer{
 
@@ -49,6 +52,10 @@ class CacheDataSource() {
                             mutableList.add("${i.cityName}, ${i.region}, ${i.country}")
                         }
 
+                        Log.d(TAG_CACHE, "База данных. Сохранён объект ${realmLocationModel.cityName} + ${realmLocationModel.region} " +
+                                "+ ${realmLocationModel.country}\n" +
+                                "Текущий список: $mutableList")
+
                         resultAnswer = CacheAnswer.SaveOrDeleteSuccess("Местоположение сохранено", mutableList)
                     }
 
@@ -72,7 +79,14 @@ class CacheDataSource() {
                                     .equalTo("cityName", realmLocationModel.cityName)
                                     .findFirst()*/
 
+                            Log.d(TAG_CACHE, "База данных." +
+                                    "Удален объект ${findNeccessaryObject?.cityName} + ${findNeccessaryObject?.region} + " +
+                                    "${findNeccessaryObject?.country}" +
+                                    "\nИскал по ${realmLocationModel.cityName} + " +
+                                    "${realmLocationModel.region} + ${realmLocationModel.country}")
+
                             findNeccessaryObject?.deleteFromRealm()
+
                         }
                     }
 
@@ -89,8 +103,12 @@ class CacheDataSource() {
                             mutableList.add("${i.cityName}, ${i.region}, ${i.country}")
                         }
 
+                        Log.d(TAG_CACHE, "База данных. Текущий список: $mutableList")
+
                         resultAnswer = CacheAnswer.SaveOrDeleteSuccess("Местоположение удалено", mutableList)
                     }
+
+                    Log.d(TAG_CACHE, "База данных. Текущий список: $updatedList")
 
                     realm.close()
                 }
@@ -115,8 +133,12 @@ class CacheDataSource() {
             try {
                 val realm = Realm.getDefaultInstance()
 
+                Log.d(TAG_CACHE, "База данных. Проверка, сохранён ли объект\n Список объектов: " +
+                        "${realm.where(RealmLocationModel::class.java).findAll()}")
+
                 val listFlterByCity: List<RealmLocationModel> = realm.where(RealmLocationModel::class.java)
                     .equalTo("cityName", city).findAll()
+
 
                 val listFlterByRegion = listFlterByCity.filter {
                     it.region == region
@@ -125,6 +147,9 @@ class CacheDataSource() {
                 val findObject = listFlterByRegion.find{
                     it.country == country
                 }
+
+                Log.d(TAG_CACHE, "База данных. Проверка, сохранён ли объект\n" +
+                        "Найденный объект: $findObject. Искал по $city + $region + $country")
 
                 /*val alreadyExistsLocation: RealmLocationModel? = realm.where(RealmLocationModel::class.java)
                     .equalTo("idCityRegionCountry", id).findFirst()*/
@@ -154,6 +179,8 @@ class CacheDataSource() {
         withContext(Dispatchers.IO){
             val locationsFromDB: RealmResults<RealmLocationModel> = Realm.getDefaultInstance()
                 .where(RealmLocationModel::class.java).findAll()
+
+            Log.d(TAG_CACHE, "База данных в момент открытия приложения:${locationsFromDB}")
 
             if(locationsFromDB.isEmpty()){
                 result = DataBaseAnswer.EmptyData("База данных пуста")
