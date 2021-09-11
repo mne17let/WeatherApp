@@ -115,7 +115,12 @@ class MainActivity: AppCompatActivity() {
     private fun setWeatherLiveData(){
         activityViewModel.cloudLiveData.observe(this){
             if(it is WeatherViewModel.LiveDataState.Weather){
-                cacheLocationString = it.currentWeather.location.name
+                val cityName = it.currentWeather.location.name
+                val region = it.currentWeather.location.region
+                val country = it.currentWeather.location.country
+
+                cacheLocationString = "$cityName, $region, $country"
+                Log.d(TAG_ACTIVITY, "$cityName, $region, $country")
             }
         }
     }

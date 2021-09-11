@@ -41,8 +41,14 @@ class WeatherViewModel(private val repository: Repository): ViewModel() {
             val result: RepositoryResult = repository.addOrRemoveLocation()
 
             if(result is RepositoryResult.CacheRepositoryResult){
+                Log.d(TAG_VIEWMODEL, "Во вьюмодели список после удаления или добавления местоположения. До сортировки: ${result.newList}")
+
+                val sorted = result.newList.sorted()
+
+                Log.d(TAG_VIEWMODEL, "Во вьюмодели список после удаления или добавления местоположения. После сортировки: $sorted")
+
                 cacheLiveData.value = CacheAnswer(result.message, result.isError)
-                savedListLiveData.value = result.newList
+                savedListLiveData.value = sorted
             }
         }
     }
@@ -51,8 +57,12 @@ class WeatherViewModel(private val repository: Repository): ViewModel() {
         viewModelScope.launch {
             val answerFromRepository = repository.getLocationsList()
 
+            Log.d(TAG_VIEWMODEL, "Во вьюмодели получен список во время загрузки приложения. До сортировки: ${answerFromRepository.data}")
+
             val listFromRepository = answerFromRepository.data
             val sorted = listFromRepository.sorted()
+
+            Log.d(TAG_VIEWMODEL, "Во вьюмодели список во время загрузки приложения. После сортировки: ${answerFromRepository.data}")
 
             savedListLiveData.value = sorted
         }

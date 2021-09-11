@@ -31,14 +31,13 @@ class SaveListAdapter(diffUtli: MyInterfaceForListAdapter, private val requireCo
         }
 
         holder.newView.setOnClickListener{
-            for (i in holdersViewsList){
-                i.setBackgroundColor(requireContext.resources.getColor(R.color.white))
-            }
+            setDefaultHolders(holdersViewsList)
             it.setBackgroundColor(requireContext.resources.getColor(R.color.selected_saved_item))
 
             Log.d(TAG_SAVE_LIST_ADAPTER, "Нажат холдер: $holder")
             Log.d(TAG_SAVE_LIST_ADAPTER, "Нажат холдер: $currentStringLocationInList")
 
+            Log.d(TAG_SAVE_LIST_ADAPTER, "Нажат холдер с итемом: ${getItem(position)}")
             listener.onClick(getItem(position))
         }
     }
@@ -52,6 +51,12 @@ class SaveListAdapter(diffUtli: MyInterfaceForListAdapter, private val requireCo
 
     override fun getItemViewType(position: Int): Int {
         return R.layout.item_drawer
+    }
+
+    fun setDefaultHolders(list: List<View>){
+        for (i in list){
+            i.setBackgroundColor(requireContext.resources.getColor(R.color.white))
+        }
     }
 
     interface SaveClickListener{

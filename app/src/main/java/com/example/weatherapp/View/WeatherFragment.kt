@@ -28,14 +28,12 @@ import com.example.weatherapp.Model.RepositoryResult
 import com.example.weatherapp.Model.api.weatherModels.forecast.ForecastDayModel
 import com.example.weatherapp.R
 import com.example.weatherapp.View.forecast_recyclerview.ForecastAdapter
-import com.example.weatherapp.View.savelist_recyclerview.MyInterfaceForListAdapter
-import com.example.weatherapp.View.savelist_recyclerview.SaveListAdapter
-import com.example.weatherapp.View.search.SearchAdapter
+import com.example.weatherapp.View.savelist_recyclerview.SavedLocationsAdapter
 import com.example.weatherapp.ViewModel.WeatherViewModel
 import com.google.android.material.snackbar.Snackbar
 import kotlin.math.roundToInt
 
-class WeatherFragment : Fragment(R.layout.fragment_weather), LocationListener, SaveListAdapter.SaveClickListener {
+class WeatherFragment : Fragment(R.layout.fragment_weather), LocationListener, SavedLocationsAdapter.SaveClickListener {
 
     private val TAG_WEATHER_FRAGMENT = "MyWeatherFragment"
     private val KEY_FOR_WEATHER_FRAGMENT = "CacheOrNull"
@@ -44,7 +42,7 @@ class WeatherFragment : Fragment(R.layout.fragment_weather), LocationListener, S
 
     //RecyclerView in Drawer
     private lateinit var drawerRecyclerView: RecyclerView
-    private lateinit var drawerAdapter: SaveListAdapter
+    private lateinit var drawerAdapter: SavedLocationsAdapter
 
     // Drawer Buttons
     private lateinit var searchButtonDrawer: Button
@@ -184,7 +182,7 @@ class WeatherFragment : Fragment(R.layout.fragment_weather), LocationListener, S
     }
 
     private fun setDrawerRecyclerView(){
-        drawerAdapter = SaveListAdapter(MyInterfaceForListAdapter(), requireContext(), this)
+        drawerAdapter = SavedLocationsAdapter(requireContext(), this)
         val layoutManager = LinearLayoutManager(requireContext())
         drawerRecyclerView.layoutManager = layoutManager
         drawerRecyclerView.adapter = drawerAdapter
@@ -330,14 +328,14 @@ class WeatherFragment : Fragment(R.layout.fragment_weather), LocationListener, S
     private fun setDrawerLiveData(){
         viewModel.savedListLiveData.observe(viewLifecycleOwner){
             if(it.isEmpty()){
-                Log.d(TAG_WEATHER_FRAGMENT, "Во фрагмент пришёл лист: $it")
-                Log.d(TAG_WEATHER_FRAGMENT, "Размер листа сохранённых локаций: ${it.size}")
-                drawerAdapter.submitList(it)
+                Log.d(TAG_WEATHER_FRAGMENT, "Во фрагмент пришёл пустой лист: $it")
+                Log.d(TAG_WEATHER_FRAGMENT, "Размер пустого листа сохранённых локаций: ${it.size}")
+                drawerAdapter.setList(it)
                 Toast.makeText(requireContext(), "Ничего не сохранено", Toast.LENGTH_SHORT).show()
             } else{
                 Log.d(TAG_WEATHER_FRAGMENT, "Во фрагмент пришёл лист: $it")
                 Log.d(TAG_WEATHER_FRAGMENT, "Размер листа сохранённых локаций: ${it.size}")
-                drawerAdapter.submitList(it)
+                drawerAdapter.setList(it)
             }
         }
     }
@@ -356,6 +354,10 @@ class WeatherFragment : Fragment(R.layout.fragment_weather), LocationListener, S
     fun setFindMeButton(){
         findMeButton.setOnClickListener {
             drawer.closeDrawer(GravityCompat.START)
+            loadingFragmentLayout.visibility = View.VISIBLE
+            fullLayout.visibility = View.GONE
+            progressBar.isIndeterminate = true
+
             workWithPermission()
         }
     }
@@ -377,9 +379,17 @@ class WeatherFragment : Fragment(R.layout.fragment_weather), LocationListener, S
                 }
                 1 -> {
                     Snackbar.make(drawer, getString(R.string.gps_off), Snackbar.LENGTH_SHORT).show()
+                    emptyLayout.visibility = View.GONE
+                    progressBar.isIndeterminate = false
+                    fullLayout.visibility = View.VISIBLE
+                    loadingFragmentLayout.visibility = View.GONE
                 }
                 0 -> {
                     Snackbar.make(drawer, getString(R.string.network_off), Snackbar.LENGTH_SHORT).show()
+                    emptyLayout.visibility = View.GONE
+                    progressBar.isIndeterminate = false
+                    fullLayout.visibility = View.VISIBLE
+                    loadingFragmentLayout.visibility = View.GONE
                 }
             }
         } else {
@@ -429,6 +439,8 @@ class WeatherFragment : Fragment(R.layout.fragment_weather), LocationListener, S
         progressBar.isIndeterminate = true
 
         drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+
+        setStartDrawerList()
 
         viewModel.getWeather("$shirota,$dolgota")
     }
