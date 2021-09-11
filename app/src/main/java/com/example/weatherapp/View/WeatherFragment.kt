@@ -79,7 +79,7 @@ class WeatherFragment : Fragment(R.layout.fragment_weather), LocationListener, S
             }
         }
 
-    private var locationManager: LocationManager? = null
+    private lateinit var locationManager: LocationManager
 
     private lateinit var burger: ImageButton
     private lateinit var textViewCityName: TextView
@@ -375,8 +375,6 @@ class WeatherFragment : Fragment(R.layout.fragment_weather), LocationListener, S
 
             drawerAdapter.setClicked(isDrawerClicked, currentDrawerClicked)
 
-            locationManager = requireContext().getSystemService(Context.LOCATION_SERVICE) as LocationManager
-
             workWithPermission()
         }
     }
@@ -450,7 +448,6 @@ class WeatherFragment : Fragment(R.layout.fragment_weather), LocationListener, S
         val dolgota = location.longitude.toString()
 
         locationManager.removeUpdates(this)
-        locationManager = null
 
         drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
 
