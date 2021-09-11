@@ -271,7 +271,7 @@ class WeatherFragment : Fragment(R.layout.fragment_weather), LocationListener, S
             currentDrawerClicked = null
             Log.d(TAG_WEATHER_FRAGMENT, "Фрагмент. Текущая локация сохранена: ${isSaved}")
             saveDeleteButton.setImageResource(R.drawable.ic_save)
-            //drawerAdapter.setClicked(isDrawerClicked, currentDrawerClicked)
+            drawerAdapter.setClicked(isDrawerClicked, currentDrawerClicked)
             textViewSaveOrDelete.text = getString(R.string.save)
         }
 
