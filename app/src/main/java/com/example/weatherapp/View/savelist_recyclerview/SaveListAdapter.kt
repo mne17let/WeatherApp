@@ -1,19 +1,35 @@
 package com.example.weatherapp.View.savelist_recyclerview
 
+import android.content.Context
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.ListAdapter
-import com.example.weatherapp.Model.cache.RealmLocationModel
 import com.example.weatherapp.R
 
-class SaveListAdapter(diffUtli: MyInterfaceForListAdapter): ListAdapter<String, SaveLocationHolder>(diffUtli) {
+class SaveListAdapter(diffUtli: MyInterfaceForListAdapter, private val requireContext: Context,
+    private val listener: SaveClickListener): ListAdapter<String, SaveLocationHolder>(diffUtli) {
+
+    private var holdersViewsList: MutableList<View> = mutableListOf()
+
+
 
     override fun onBindViewHolder(holder: SaveLocationHolder, position: Int) {
-        val currentModelInList = getItem(position)
-        holder.bind(currentModelInList)
+        val currentStringLocationInList = getItem(position)
+        holder.bind(currentStringLocationInList)
+
+        holdersViewsList.add(holder.newView)
+
+        holder.newView.setOnClickListener{
+            for (i in holdersViewsList){
+                i.setBackgroundColor(requireContext.resources.getColor(R.color.white))
+            }
+            it.setBackgroundColor(requireContext.resources.getColor(R.color.selected_saved_item))
+
+            listener.onClick(getItem(position))
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SaveLocationHolder {
@@ -24,6 +40,10 @@ class SaveListAdapter(diffUtli: MyInterfaceForListAdapter): ListAdapter<String, 
 
     override fun getItemViewType(position: Int): Int {
         return R.layout.item_drawer
+    }
+
+    interface SaveClickListener{
+        fun onClick(string: String)
     }
 
 }
@@ -37,5 +57,4 @@ class MyInterfaceForListAdapter: DiffUtil.ItemCallback<String>(){
     override fun areContentsTheSame(oldItem: String, newItem: String): Boolean {
         return oldItem.equals(newItem)
     }
-
 }

@@ -17,7 +17,7 @@ import com.example.weatherapp.ViewModel.WeatherViewModel
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 
-class SearchFragment: Fragment(R.layout.fragment_search) {
+class SearchFragment: Fragment(R.layout.fragment_search), SearchAdapter.ClickListener {
 
     private val TAG_SEARCH_FRAGMENT = "MySearchFragment"
 
@@ -54,7 +54,7 @@ class SearchFragment: Fragment(R.layout.fragment_search) {
 
     fun setRecycler(){
         val layoutManager = LinearLayoutManager(requireContext())
-        adapter = SearchAdapter()
+        adapter = SearchAdapter(this)
 
         recyclerView.layoutManager = layoutManager
         recyclerView.adapter = adapter
@@ -113,6 +113,10 @@ class SearchFragment: Fragment(R.layout.fragment_search) {
                 adapter.setList(it)
             }
         }
+    }
+
+    override fun onClick(string: String) {
+        (activity as MainActivity).openNewLocationFragment(string)
     }
 
 }

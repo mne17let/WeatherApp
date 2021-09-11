@@ -2,7 +2,6 @@
 <androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/id_layout_drawer"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="center"
@@ -18,62 +17,6 @@
 
         android:id="@+id/id_fragment_container"/>
 
-    <com.google.android.material.navigation.NavigationView
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_gravity="start"
-
-
-        android:id="@+id/id_navigation_view_drawer">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
-
-            <TextView
-                style="@style/TextAppearance.AppCompat.Body2"
-                android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:background="@color/drawer_header"
-                android:gravity="center_vertical"
-                android:padding="8dp"
-                android:text="@string/drawer_header_text"
-                android:textColor="@color/white"
-                android:textSize="20sp" />
-
-            <Button
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="4dp"
-                android:text="@string/add_new_location"
-                android:textSize="13sp"
-                android:backgroundTint="@color/teal_200"
-
-                android:id="@+id/id_button_add_new_location"/>
-
-            <Button
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="4dp"
-                android:text="@string/find_my_location"
-                android:textSize="13sp"
-                android:backgroundTint="@color/teal_700"
-
-                android:id="@+id/id_button_my_location"/>
-
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="8dp"
-
-                android:id="@+id/id_drawer_recyclerview"/>
-
-
-        </LinearLayout>
-
-    </com.google.android.material.navigation.NavigationView>
 
 
 </androidx.drawerlayout.widget.DrawerLayout>

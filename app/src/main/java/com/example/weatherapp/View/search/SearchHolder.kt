@@ -9,7 +9,11 @@ class SearchHolder(newView: View): RecyclerView.ViewHolder(newView) {
 
     private val textView: TextView = itemView.findViewById(R.id.id_search_result_text)
 
-    fun bind(text: String){
+    fun bind(text: String, listener: SearchAdapter.ClickListener){
         textView.text = text
+
+        itemView.setOnClickListener{
+            listener.onClick(text)
+        }
     }
 }

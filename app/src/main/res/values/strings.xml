@@ -15,4 +15,13 @@
     <string name="short_search_text">Too short request</string>
 
     <string name="nothing_found">Nothing was found</string>
+
+    <string name="gps_off">GPS-provider is off</string>
+
+    <string name="network_off">Network-provider is off</string>
+
+    <string name="need_location_permission">Allow this app to access the device\'s location</string>
+
+    <string name="try_again">Try again</string>
+
 </resources>

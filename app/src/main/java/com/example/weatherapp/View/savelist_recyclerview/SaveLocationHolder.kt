@@ -5,12 +5,13 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.weatherapp.Model.cache.RealmLocationModel
 import com.example.weatherapp.R
+import com.example.weatherapp.View.search.SearchAdapter
 
-class SaveLocationHolder(newView: View): RecyclerView.ViewHolder(newView) {
+class SaveLocationHolder(val newView: View): RecyclerView.ViewHolder(newView) {
 
     private val textViewCityName: TextView = itemView.findViewById(R.id.id_textview_item_save_location)
 
-    fun bind(modelLocation: String){
-        textViewCityName.text = modelLocation
+    fun bind(stringLocation: String){
+        textViewCityName.text = stringLocation
     }
 }

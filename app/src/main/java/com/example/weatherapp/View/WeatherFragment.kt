@@ -1,15 +1,24 @@
 package com.example.weatherapp.View
 
 import android.Manifest
+import android.annotation.SuppressLint
+import android.content.Context
 import android.content.pm.PackageManager
+import android.location.Location
+import android.location.LocationListener
+import android.location.LocationManager
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.*
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
+import androidx.core.view.GravityCompat
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -18,21 +27,45 @@ import com.example.weatherapp.MainActivity
 import com.example.weatherapp.Model.api.weatherModels.forecast.ForecastDayModel
 import com.example.weatherapp.R
 import com.example.weatherapp.View.forecast_recyclerview.ForecastAdapter
+import com.example.weatherapp.View.savelist_recyclerview.MyInterfaceForListAdapter
+import com.example.weatherapp.View.savelist_recyclerview.SaveListAdapter
+import com.example.weatherapp.View.search.SearchAdapter
 import com.example.weatherapp.ViewModel.WeatherViewModel
+import com.google.android.material.snackbar.Snackbar
 
-class WeatherFragment : Fragment(R.layout.fragment_weather) {
+class WeatherFragment : Fragment(R.layout.fragment_weather), LocationListener, SaveListAdapter.SaveClickListener {
 
     private val TAG_WEATHER_FRAGMENT = "MyWeatherFragment"
+    private val KEY_FOR_WEATHER_FRAGMENT = "CacheOrNull"
+
+    private lateinit var drawer: DrawerLayout
+
+    //RecyclerView in Drawer
+    private lateinit var drawerRecyclerView: RecyclerView
+    private lateinit var drawerAdapter: SaveListAdapter
+
+    // Drawer Buttons
+    private lateinit var searchButtonDrawer: Button
+    private lateinit var findMeButton: Button
 
     private val requestPermissionLauncher: ActivityResultLauncher<Array<String>> =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { isGrantedMap ->
 
+            var result = true
+
             for (key in isGrantedMap.keys) {
                 if (isGrantedMap[key] == false) {
-
+                    result = false
                 }
             }
+
+            if(result){
+                workWithPermission()
+            }
         }
+
+    private lateinit var locationManager: LocationManager
+
 
     private lateinit var burger: ImageButton
     private lateinit var textViewCityName: TextView
@@ -43,68 +76,41 @@ class WeatherFragment : Fragment(R.layout.fragment_weather) {
     private lateinit var textViewSaveOrDelete: TextView
 
     private lateinit var fullLayout: LinearLayout
+
     private lateinit var tryAgainButton: Button
     private lateinit var progressBar: ProgressBar
+    private lateinit var loadingFragmentLayout: LinearLayout
+
+    private lateinit var emptyLayout: LinearLayout
+    private lateinit var emptyLayoutButton: Button
+
+    private lateinit var constraintMenuSaveDelete: ConstraintLayout
 
 
 
     // RecyclerView
     private lateinit var recyclerViewForecast: RecyclerView
-    private lateinit var adapter: ForecastAdapter
+    private lateinit var forecastAdapter: ForecastAdapter
 
     private lateinit var viewModel: WeatherViewModel
 
-/*
+    private var cacheLocationName: String? = null
 
-    private lateinit var locationManager: LocationManager
-
-    setViewModel()
-    getContract()
-    init()
-    setLiveData()
+    private var shouldAskLocation: Boolean = true
 
 
-    }
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        cacheLocationName = arguments?.getString(KEY_FOR_WEATHER_FRAGMENT, null)
 
+        shouldAskLocation = cacheLocationName == null
 
-    fun init(){
+        locationManager = requireContext().getSystemService(Context.LOCATION_SERVICE) as LocationManager
 
-
-        locationManager = applicationContext.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-    }
-
-    fun setLiveData(){
-        searchViewModel.mutableLiveData.observe(this){
-            Log.d(TAG_ACTIVITY, "В активити получен результат: $it")
-
-            textViewCityName.text = it[0].toString()
-            textViewCurrentTemperature.text = it[1].toString()
-            val stringUrl = it[2].toString()
-            val url = "https:$stringUrl"
-            Log.d(TAG_ACTIVITY, "url = $url")
-            Glide.with(imageViewWeatherIcon).load(url).into(imageViewWeatherIcon)
-            //imageViewWeatherIcon.setBackgroundColor(resources.getColor(R.color.black))
+        if(shouldAskLocation){
+            workWithPermission()
         }
     }
-
-    override fun onLocationChanged(location: Location) {
-        Log.d(TAG_ACTIVITY, "Вызван метод изменения местоположения")
-        shirotaTextView.text = location.latitude.toString()
-        dolgotaTextView.text = location.longitude.toString()
-
-        locationManager.removeUpdates(this)
-
-        searchViewModel.search("${location.latitude},${location.longitude}")
-    }
-
-    override fun onProviderDisabled(provider: String) {
-        Log.d(TAG_ACTIVITY, "on Provider Disabled")
-    }
-
-    override fun onProviderEnabled(provider: String) {
-        Log.d(TAG_ACTIVITY, "on Provider Enabled")
-    }
-    */
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -118,38 +124,70 @@ class WeatherFragment : Fragment(R.layout.fragment_weather) {
         textViewSaveOrDelete = view.findViewById(R.id.id_textview_save_or_delete)
 
         fullLayout = view.findViewById(R.id.id_full_frame_weather_fragment)
+
         tryAgainButton = view.findViewById(R.id.id_button_try_again)
         progressBar = view.findViewById(R.id.id_progress_bar)
+        loadingFragmentLayout = view.findViewById(R.id.id_loading_fragment)
 
+        emptyLayout = view.findViewById(R.id.id_empty_fragment)
+        emptyLayoutButton = view.findViewById(R.id.id_empty_weather_fragment_add_new_location)
+
+        constraintMenuSaveDelete = view.findViewById(R.id.id_constraint_menu_savedelete)
 
 
         recyclerViewForecast = view.findViewById(R.id.id_recyclerview_forecast)
 
+        //drawer variables init
+        drawer = view.findViewById(R.id.id_layout_drawer)
+        drawerRecyclerView = view.findViewById(R.id.id_drawer_recyclerview)
+        searchButtonDrawer = view.findViewById(R.id.id_button_add_new_location)
+        findMeButton = view.findViewById(R.id.id_button_my_location)
 
         init()
-        setCloudLiveData()
-        setCacheLiveData()
-        getCurrentWeather()
-
-    }
-
-    fun getCurrentWeather(){
-        viewModel.getWeather("Москва")
-        fullLayout.visibility = View.GONE
-        progressBar.visibility = View.VISIBLE
     }
 
     private fun init() {
         viewModel = (activity as MainActivity).activityViewModel
 
+        setDrawerRecyclerView()
         setRecyclerViewForecast()
         setBurger()
         setSaveButton()
+        setAddNewLocationButtonOnEmptyFragment()
+        setCloudLiveData()
+        setCacheLiveData()
+        setDrawerLiveData()
+        setBackPress()
+        setStartDrawerList()
+        setSearchDrawerButton()
+
+        if(cacheLocationName != null){
+            getCurrentWeather()
+            Log.d(TAG_WEATHER_FRAGMENT, "Получаю погоду")
+        } else{
+            setEmptyLayout()
+            Log.d(TAG_WEATHER_FRAGMENT, "Засетил пустой фрагмент")
+        }
+    }
+
+    private fun setDrawerRecyclerView(){
+        drawerAdapter = SaveListAdapter(MyInterfaceForListAdapter(), requireContext(), this)
+        val layoutManager = LinearLayoutManager(requireContext())
+        drawerRecyclerView.layoutManager = layoutManager
+        drawerRecyclerView.adapter = drawerAdapter
+    }
+
+    private fun setRecyclerViewForecast() {
+        val layoutManager = LinearLayoutManager(requireContext())
+        forecastAdapter = ForecastAdapter()
+
+        recyclerViewForecast.layoutManager = layoutManager
+        recyclerViewForecast.adapter = forecastAdapter
     }
 
     private fun setBurger() {
         burger.setOnClickListener {
-            (activity as MainActivity).showDrawer()
+            drawer.openDrawer(GravityCompat.START)
         }
     }
 
@@ -163,12 +201,10 @@ class WeatherFragment : Fragment(R.layout.fragment_weather) {
         }
     }
 
-    private fun setRecyclerViewForecast() {
-        val layoutManager = LinearLayoutManager(requireContext())
-        adapter = ForecastAdapter()
-
-        recyclerViewForecast.layoutManager = layoutManager
-        recyclerViewForecast.adapter = adapter
+    private fun setAddNewLocationButtonOnEmptyFragment(){
+        emptyLayoutButton.setOnClickListener {
+            (activity as MainActivity).openSearchFragment()
+        }
     }
 
     private fun setCloudLiveData() {
@@ -177,6 +213,9 @@ class WeatherFragment : Fragment(R.layout.fragment_weather) {
 
             when (it) {
                 is WeatherViewModel.LiveDataState.Weather -> {
+                    drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
+
+                    progressBar.isIndeterminate = false
                     textViewCityName.text = it.currentWeather.location.name
                     textViewCurrentTemperature.text = it.currentWeather.current.temp_c.toString()
                     currentDescriptionTextView.text =
@@ -206,7 +245,7 @@ class WeatherFragment : Fragment(R.layout.fragment_weather) {
                         newListForAdapter.add(i)
                     }
 
-                    setNewListForForecastAdapter(newListForAdapter)
+                    forecastAdapter.setList(newListForAdapter)
                 }
 
                 is WeatherViewModel.LiveDataState.Error -> {
@@ -238,49 +277,146 @@ class WeatherFragment : Fragment(R.layout.fragment_weather) {
         }
     }
 
-    private fun setNewListForForecastAdapter(forecastList: List<ForecastDayModel>) {
-        adapter.setList(forecastList)
+    private fun setBackPress(){
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner,
+            object : OnBackPressedCallback(true){
+                override fun handleOnBackPressed() {
+                    if(drawer.isDrawerOpen(GravityCompat.START)){
+                        drawer.closeDrawer(GravityCompat.START)
+                    } else{
+                        isEnabled = false
+                        requireActivity().onBackPressed()
+                    }
+                }
+            })
     }
 
+    private fun getCurrentWeather(){
+        emptyLayout.visibility = View.GONE
+        fullLayout.visibility = View.GONE
+        loadingFragmentLayout.visibility = View.VISIBLE
+
+        progressBar.isIndeterminate = false
+
+        drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+
+        cacheLocationName?.let { viewModel.getWeather(it) }
+    }
+
+    private fun setEmptyLayout(){
+        fullLayout.visibility = View.GONE
+        loadingFragmentLayout.visibility = View.GONE
+
+        emptyLayout.visibility = View.VISIBLE
+
+        drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+    }
+
+    private fun setDrawerLiveData(){
+        viewModel.savedListLiveData.observe(viewLifecycleOwner){
+            if(it.isEmpty()){
+                drawerAdapter.submitList(it)
+                Toast.makeText(requireContext(), "Ничего не сохранено", Toast.LENGTH_SHORT).show()
+            } else{
+                drawerAdapter.submitList(it)
+            }
+        }
+    }
+
+    private fun setStartDrawerList(){
+        viewModel.getSaveList()
+    }
+
+    private fun setSearchDrawerButton(){
+        searchButtonDrawer.setOnClickListener {
+            drawer.closeDrawer(GravityCompat.START)
+            (activity as MainActivity).openSearchFragment()
+        }
+    }
+
+    @SuppressLint("MissingPermission")
     private fun workWithPermission() {
-        if (ContextCompat.checkSelfPermission(
-                requireContext(),
-                Manifest.permission.ACCESS_FINE_LOCATION
-            )
-            == PackageManager.PERMISSION_GRANTED &&
-            ContextCompat.checkSelfPermission(
-                requireContext(),
+        if (checkPermissions()) {
+            when(checkProvidersStatus()){
+                2 -> {
+                    locationManager.requestLocationUpdates(
+                        LocationManager.NETWORK_PROVIDER, 0, 0f, this)
+                }
+                1 -> {
+                    Snackbar.make(drawer, getString(R.string.gps_off), Snackbar.LENGTH_SHORT).show()
+                }
+                0 -> {
+                    Snackbar.make(drawer, getString(R.string.network_off), Snackbar.LENGTH_SHORT).show()
+                }
+            }
+        } else {
+            askPermissions()
+        }
+    }
+
+    private fun checkPermissions(): Boolean{
+        return (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED)
+    }
+
+    private fun askPermissions(){
+        requestPermissionLauncher.launch(
+            arrayOf(
+                Manifest.permission.ACCESS_FINE_LOCATION,
                 Manifest.permission.ACCESS_COARSE_LOCATION
             )
-            == PackageManager.PERMISSION_GRANTED
-        ) {
+        )
+    }
 
-            Toast.makeText(requireContext(), "Даны разрешения", Toast.LENGTH_SHORT).show()
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+    private fun checkProvidersStatus(): Int{
+        val isGPSEnabled: Boolean = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+        val isNetWorkEnabled: Boolean = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+
+        val result = if(isGPSEnabled && isNetWorkEnabled){
+            2
+        } else if(!isGPSEnabled){
+            1
+        } else{
+            0
+        }
+        return result
+    }
+
+    override fun onLocationChanged(location: Location) {
+        Log.d(TAG_WEATHER_FRAGMENT, "Вызван метод изменения местоположения")
+        val shirota = location.latitude.toString()
+        val dolgota = location.longitude.toString()
+
+        locationManager.removeUpdates(this)
+
+        (activity as MainActivity).openNewLocationFragment("$shirota,$dolgota")
+    }
+
+    override fun onProviderDisabled(provider: String) {
+        Log.d(TAG_WEATHER_FRAGMENT, "on Provider Disabled")
+    }
+
+    override fun onProviderEnabled(provider: String) {
+        Log.d(TAG_WEATHER_FRAGMENT, "on Provider Enabled")
+    }
+
+    private fun checkShouldShowEducation(){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
             if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_COARSE_LOCATION)
                 || shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_COARSE_LOCATION)
             ) {
-                Toast.makeText(
-                    requireContext(),
-                    "Для этого действия необходимы разрешения",
-                    Toast.LENGTH_SHORT
-                ).show()
-            } else {
-                requestPermissionLauncher.launch(
-                    arrayOf(
-                        Manifest.permission.ACCESS_FINE_LOCATION,
-                        Manifest.permission.ACCESS_COARSE_LOCATION
-                    )
-                )
+                Snackbar.make(drawer, getString(R.string.need_location_permission), Snackbar.LENGTH_SHORT).show()
             }
-        } else {
-            requestPermissionLauncher.launch(
-                arrayOf(
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.ACCESS_COARSE_LOCATION
-                )
-            )
         }
+    }
 
+    fun setTryAgainButton(){
+
+    }
+
+    override fun onClick(string: String) {
+        drawer.closeDrawer(GravityCompat.START)
+
+        viewModel.getWeather(string)
     }
 }

@@ -9,4 +9,7 @@
     <color name="white">#FFFFFFFF</color>
 
     <color name="drawer_header">#00BCD4</color>
+
+    <color name="not_selected_saved_item">#C6E9ED</color>
+    <color name="selected_saved_item">#00BCD4</color>
 </resources>

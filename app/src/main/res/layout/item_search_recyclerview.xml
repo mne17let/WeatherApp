@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingTop="8dp"
-    android:paddingBottom="8dp">
+    android:paddingTop="16dp"
+    android:orientation="vertical">
 
     <TextView
         android:layout_width="match_parent"
@@ -12,7 +12,15 @@
         android:gravity="center"
         tools:text="Очень длинный текст Очень длинный текст"
         android:textSize="25sp"
+        android:layout_marginBottom="8dp"
 
         android:id="@+id/id_search_result_text"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:layout_weight="1"
+        android:background="@android:color/black"
+        />
 
 </LinearLayout>
