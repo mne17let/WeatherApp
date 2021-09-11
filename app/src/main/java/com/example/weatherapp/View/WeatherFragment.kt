@@ -262,9 +262,10 @@ class WeatherFragment : Fragment(R.layout.fragment_weather), LocationListener, S
             saveDeleteButton.setImageResource(R.drawable.ic_delete)
             textViewSaveOrDelete.text = getString(R.string.delete)
             isDrawerClicked = true
-            currentDrawerClicked = location.name
+            currentDrawerClicked = newCache
             drawerAdapter.setClicked(isDrawerClicked, currentDrawerClicked)
-            Toast.makeText(requireContext(), "Местоположение сохранено", Toast.LENGTH_SHORT).show()
+            Log.d(TAG_WEATHER_FRAGMENT, "Кэш во фрагменте: $newCache")
+            Toast.makeText(requireContext(), "Сохранённое", Toast.LENGTH_SHORT).show()
         } else{
             isDrawerClicked = false
             currentDrawerClicked = null
@@ -494,6 +495,8 @@ class WeatherFragment : Fragment(R.layout.fragment_weather), LocationListener, S
         isDrawerClicked = true
 
         if(string != currentDrawerClicked){
+            Log.d(TAG_WEATHER_FRAGMENT, "Текущий drawerClicked: $currentDrawerClicked")
+
             Log.d(TAG_WEATHER_FRAGMENT, "Текущий кэш: $cacheLocationName")
             cacheLocationName = string
             drawer.closeDrawer(GravityCompat.START)

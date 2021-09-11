@@ -59,7 +59,7 @@ class CacheDataSource() {
                         resultAnswer = CacheAnswer.SaveOrDeleteSuccess("Местоположение сохранено", mutableList)
                     }
 
-                    realm.close()
+                    //realm.close()
                 } else{
                     val transaction = object : Realm.Transaction{
                         override fun execute(realm: Realm) {
@@ -110,7 +110,7 @@ class CacheDataSource() {
 
                     Log.d(TAG_CACHE, "База данных. Текущий список: $updatedList")
 
-                    realm.close()
+                    //realm.close()
                 }
             } catch (e: Exception){
                 val emptyData: List<String> = emptyList<String>()
@@ -156,10 +156,10 @@ class CacheDataSource() {
 
                 if(findObject == null){
                     resultAnswer = false
-                    realm.close()
+                    //realm.close()
                 } else{
                     resultAnswer = true
-                    realm.close()
+                    //realm.close()
                 }
             } catch (e: Exception){
 
