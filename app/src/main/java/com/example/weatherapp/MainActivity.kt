@@ -37,6 +37,7 @@ class MainActivity: AppCompatActivity() {
 
     private val TAG_ACTIVITY = "MyMainActivity"
     private val KEY_FOR_WEATHER_FRAGMENT = "CacheOrNull"
+    private val KEY_FOR_WEATHER_FRAGMENT_IS_OPEN_FROM_TEXT_SEARCH = "IsOpenFromTextSearch"
     private val TAG_WEATHER_FRAGMENT = "WeatherFragment"
 
     private lateinit var sharedPreferences: SharedPreferences
@@ -54,6 +55,7 @@ class MainActivity: AppCompatActivity() {
     private fun setCache(){
         sharedPreferences = getSharedPreferences(TAG_ACTIVITY, MODE_PRIVATE)
         cacheLocationString = sharedPreferences.getString(TAG_ACTIVITY, null)
+        Log.d(TAG_ACTIVITY, "В активити при запуске получен кэш: $cacheLocationString")
     }
 
     private fun init(){
@@ -65,6 +67,8 @@ class MainActivity: AppCompatActivity() {
         val weatherFragment = WeatherFragment()
         val bundle = Bundle()
         bundle.putString(KEY_FOR_WEATHER_FRAGMENT, cacheLocationString)
+
+        Log.d(TAG_ACTIVITY, "В активити при запуске запускается стартовый фрагмент с данными: $cacheLocationString")
 
         weatherFragment.arguments = bundle
 
@@ -80,55 +84,31 @@ class MainActivity: AppCompatActivity() {
             .replace(R.id.id_fragment_container, SearchFragment()).addToBackStack(TAG_SEARCH_FRAGMENT).commit()
     }
 
-    fun openNewFoundLocationFragment(coordinatesOrLocationName: String){
-        val weatherFragment = WeatherFragment()
-        val bundle = Bundle()
-        cacheLocationString = coordinatesOrLocationName
-        bundle.putString(KEY_FOR_WEATHER_FRAGMENT, coordinatesOrLocationName)
+    fun openNewSearchLocationFragment(coordinatesOrLocationName: String, view: View){
 
-        weatherFragment.arguments = bundle
+        val newFragment = WeatherFragment()
+        val bundle = Bundle()
+        val isOpenFromTextSearch = true
+
+        cacheLocationString = coordinatesOrLocationName
+
+        bundle.putString(KEY_FOR_WEATHER_FRAGMENT, coordinatesOrLocationName)
+        bundle.putBoolean(KEY_FOR_WEATHER_FRAGMENT_IS_OPEN_FROM_TEXT_SEARCH, isOpenFromTextSearch)
+        newFragment.arguments = bundle
+
+        hideKeyboardFrom(view)
+
+        //supportFragmentManager.beginTransaction().remove(newOrExistsFragment).commit()
+
+        //supportFragmentManager.popBackStack()
+
+        Log.d(TAG_ACTIVITY, "Активити. Размер бэкстека: ${supportFragmentManager.backStackEntryCount}")
+
+        Log.d(TAG_ACTIVITY, "Активити. Стартовал новый фрагмент с данными: ${cacheLocationString}, $isOpenFromTextSearch")
 
         supportFragmentManager.beginTransaction()
-            .replace(R.id.id_fragment_container, weatherFragment)
+            .replace(R.id.id_fragment_container, newFragment, TAG_WEATHER_FRAGMENT)
             .commit()
-    }
-
-    fun openNewSearchLocationFragment(coordinatesOrLocationName: String, view: View){
-        var newOrExistsFragment = supportFragmentManager.findFragmentByTag(TAG_WEATHER_FRAGMENT)
-
-        if(newOrExistsFragment == null){
-            newOrExistsFragment = WeatherFragment()
-            val bundle = Bundle()
-            cacheLocationString = coordinatesOrLocationName
-            bundle.putString(KEY_FOR_WEATHER_FRAGMENT, coordinatesOrLocationName)
-
-            newOrExistsFragment.arguments = bundle
-
-            hideKeyboardFrom(view)
-
-            supportFragmentManager.beginTransaction()
-                .replace(R.id.id_fragment_container, newOrExistsFragment, TAG_WEATHER_FRAGMENT)
-                .commit()
-        } else{
-            val newFragment = WeatherFragment()
-            val bundle = Bundle()
-            cacheLocationString = coordinatesOrLocationName
-            bundle.putString(KEY_FOR_WEATHER_FRAGMENT, coordinatesOrLocationName)
-            newFragment.arguments = bundle
-
-            hideKeyboardFrom(view)
-
-            supportFragmentManager.beginTransaction().remove(newOrExistsFragment).commit()
-
-            supportFragmentManager.popBackStack()
-
-            supportFragmentManager.beginTransaction()
-                .add(R.id.id_fragment_container, newFragment, TAG_WEATHER_FRAGMENT)
-                .commit()
-
-        }
-
-
     }
 
     private fun hideKeyboardFrom(view: View) {
@@ -144,7 +124,7 @@ class MainActivity: AppCompatActivity() {
                 val country = it.currentWeather.location.country
 
                 cacheLocationString = "$cityName, $region, $country"
-                Log.d(TAG_ACTIVITY, "Обновление лайвдаты с погодой.Кэш в активити: $cityName, $region, $country")
+                Log.d(TAG_ACTIVITY, "Обновление лайвдаты с погодой. Кэш в активити: $cityName, $region, $country")
             }
         }
     }

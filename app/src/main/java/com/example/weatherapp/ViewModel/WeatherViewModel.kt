@@ -47,8 +47,9 @@ class WeatherViewModel(private val repository: Repository): ViewModel() {
 
                 Log.d(TAG_VIEWMODEL, "Во вьюмодели список после удаления или добавления местоположения. После сортировки: $sorted")
 
-                cacheLiveData.value = CacheAnswer(result.message, result.isError)
                 savedListLiveData.value = sorted
+                cacheLiveData.value = CacheAnswer(result.message, result.isError)
+
             }
         }
     }

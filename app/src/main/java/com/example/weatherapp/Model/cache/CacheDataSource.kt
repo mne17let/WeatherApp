@@ -59,7 +59,7 @@ class CacheDataSource() {
                         resultAnswer = CacheAnswer.SaveOrDeleteSuccess("Местоположение сохранено", mutableList)
                     }
 
-                    //realm.close()
+                    realm.close()
                 } else{
                     val transaction = object : Realm.Transaction{
                         override fun execute(realm: Realm) {
@@ -110,7 +110,7 @@ class CacheDataSource() {
 
                     Log.d(TAG_CACHE, "База данных. Текущий список: $updatedList")
 
-                    //realm.close()
+                    realm.close()
                 }
             } catch (e: Exception){
                 val emptyData: List<String> = emptyList<String>()
@@ -156,10 +156,10 @@ class CacheDataSource() {
 
                 if(findObject == null){
                     resultAnswer = false
-                    //realm.close()
+                    realm.close()
                 } else{
                     resultAnswer = true
-                    //realm.close()
+                    realm.close()
                 }
             } catch (e: Exception){
 
@@ -180,7 +180,7 @@ class CacheDataSource() {
             val locationsFromDB: RealmResults<RealmLocationModel> = Realm.getDefaultInstance()
                 .where(RealmLocationModel::class.java).findAll()
 
-            Log.d(TAG_CACHE, "База данных в момент открытия приложения:${locationsFromDB}")
+            Log.d(TAG_CACHE, "В базе данных вызван метод получения всего списка:${locationsFromDB}")
 
             if(locationsFromDB.isEmpty()){
                 result = DataBaseAnswer.EmptyData("База данных пуста")

@@ -126,7 +126,7 @@
             android:gravity="center"
             android:textColor="@color/white"
 
-            android:id="@+id/id_textview_current_weather_description"/>
+            android:id="@+id/id_textview_current_full_location"/>
 
         <androidx.recyclerview.widget.RecyclerView
             android:layout_width="match_parent"

@@ -57,6 +57,9 @@ class SavedLocationsAdapter(private val necessaryContext: Context,
                 holder.newView.setBackgroundColor(necessaryContext.resources.getColor(R.color.white))
                 Log.d(TAG_SAVED_LOCATIONS_ADAPTER, "Байнд ненажатого: ${locationsList[position]}")
             }
+        } else{
+            holder.newView.setBackgroundColor(necessaryContext.resources.getColor(R.color.white))
+            Log.d(TAG_SAVED_LOCATIONS_ADAPTER, "Крашу каждый в дефолтный цвет: ${locationsList[position]}")
         }
 
         holder.newView.setOnClickListener{
